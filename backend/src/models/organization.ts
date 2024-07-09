@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { Domain, Role, Scan, ScanTask, OrganizationTag } from '.';
 import { User } from './user';
-import { OpenSourceSoftware } from './openSourceSoftware';
+import { OpenSourceProject } from './open-source-project';
 
 export interface PendingDomain {
   name: string;
@@ -159,7 +159,7 @@ export class Organization extends BaseEntity {
   })
   type: string;
 
-  @ManyToMany(() => OpenSourceSoftware, (openSourceSoftware) => openSourceSoftware.organizations)
-  openSourceSoftware: OpenSourceSoftware[];
+  @ManyToMany(() => OpenSourceProject, (openSourceProject) => openSourceProject.organizations)
+  openSourceProjects: OpenSourceProject[];
 
 }

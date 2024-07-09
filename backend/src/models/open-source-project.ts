@@ -15,7 +15,7 @@ import { Organization } from './organization';
 @Index(['url', 'name'], { unique: true })
 @Index(['createdAt'])
 @Index(['updatedAt'])
-export class OpenSourceSoftware extends BaseEntity {
+export class OpenSourceProject extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -37,14 +37,16 @@ export class OpenSourceSoftware extends BaseEntity {
   })
   hipcheckResults: object;
 
-  @ManyToMany(() => Organization, (organization) => organization.openSourceSoftware)
+  @ManyToMany(() => Organization, (organization) => organization.openSourceProjects)
   organizations: Organization[];
 
   @BeforeInsert()
   setNameFromUrl() {
     if (this.url) {
-      const urlParts = this.url.split('/');
-      this.name = urlParts[urlParts.length - 1];
+      const match = this.url.match(/https:\/\/github.com\/(.+)/);
+      if (match && match[1]) {
+        this.name = match[1];
+      }
     }
   }
 }
