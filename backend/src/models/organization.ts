@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { Domain, Role, Scan, ScanTask, OrganizationTag } from '.';
 import { User } from './user';
+import { OpenSourceProject } from './open-source-project';
 
 export interface PendingDomain {
   name: string;
@@ -157,4 +158,8 @@ export class Organization extends BaseEntity {
     nullable: true
   })
   type: string;
+
+  @ManyToMany(() => OpenSourceProject, (openSourceProject) => openSourceProject.organizations)
+  openSourceProjects: OpenSourceProject[];
+
 }
