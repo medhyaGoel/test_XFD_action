@@ -7,7 +7,7 @@ export * from './cve';
 export * from './domain';
 export * from './organization';
 export * from './organization-tag';
-export * from './open-source-project';
+export * from './open_source_project';
 export * from './notification';
 export * from './question';
 export * from './resource';

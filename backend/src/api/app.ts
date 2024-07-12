@@ -12,6 +12,7 @@ import * as notifications from './notifications';
 import * as search from './search';
 import * as vulnerabilities from './vulnerabilities';
 import * as organizations from './organizations';
+import * as open_source_project from './open_source_project';
 import * as scans from './scans';
 import * as users from './users';
 import * as scanTasks from './scan-tasks';
@@ -706,6 +707,35 @@ authenticatedRoute.put(
 authenticatedRoute.get(
   '/v2/organizations',
   handlerToExpress(organizations.getAllV2)
+);
+
+
+//************* */
+//  Open Source Project Routes   //
+//************* */
+
+// get
+authenticatedRoute.get(
+  '/project/:projectId',
+  handlerToExpress(open_source_project.getById)
+);
+
+// list
+authenticatedRoute.get(
+  '/project/org/:orgId',
+  handlerToExpress(open_source_project.listByOrg)
+);
+
+// create
+authenticatedRoute.post(
+  '/project_upsert',
+  handlerToExpress(open_source_project.create_proj)
+);
+
+// delete
+authenticatedRoute.delete(
+  '/project/del/:projectId/:orgId',
+  handlerToExpress(open_source_project.del)
 );
 
 app.use(authenticatedRoute);
