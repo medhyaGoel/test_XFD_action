@@ -728,7 +728,7 @@ authenticatedRoute.get(
 
 // create
 authenticatedRoute.post(
-  '/project_upsert',
+  '/project_upsert/org/:orgId',
   handlerToExpress(open_source_project.create_proj)
 );
 
