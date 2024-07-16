@@ -139,4 +139,3 @@ jobs:
       - name: Build worker container
         run: npm run build-worker
         working-directory: ./backend
-  
