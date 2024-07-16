@@ -30,6 +30,7 @@ const OSS: React.FC = () => {
           updatedAt: '2022-07-01',
           createdAt: '2021-07-01',
           status: 'Active',
+          hipcheck: '12',
         },
       ];
       setOSSProjects(projects);
@@ -52,6 +53,7 @@ const OSS: React.FC = () => {
       parseISO(project.createdAt)
     )} days ago`,
     status: project.status,
+    hipcheck: project.hipcheck,
   }));
 
   const ossProjectCols: GridColDef[] = [
@@ -60,6 +62,7 @@ const OSS: React.FC = () => {
     { field: 'updatedAt', headerName: 'Updated At', minWidth: 100, flex: 1 },
     { field: 'createdAt', headerName: 'Created At', minWidth: 100, flex: 1 },
     { field: 'status', headerName: 'Status', minWidth: 100, flex: 1 },
+    { field: 'hipcheck', headerName: 'Hipcheck Score', minWidth: 100, flex: 1},
     {
       field: 'view',
       headerName: 'Details',
@@ -97,17 +100,6 @@ const OSS: React.FC = () => {
 
       <br></br>
 
-      <Box sx={{width: '95%', display: 'flex', justifyContent: 'flex-end' }}>
-        <Button
-        aria-label="Create new project"
-        color="primary"
-        variant="contained"
-        onClick={() => history.push('/inventory/oss/create-new')}
-        >
-        Create new project
-        </Button>
-      </Box>
-
       <Box mb={3} mt={3} display="flex" justifyContent="center">
         {ossProjectRows.length === 0 ? (
           <Stack direction="row" spacing={2}>
@@ -133,6 +125,17 @@ const OSS: React.FC = () => {
             />
           </Paper>
         )}
+      </Box>
+
+      <Box sx={{width: '95%', display: 'flex', justifyContent: 'flex-end' }}>
+        <Button
+        aria-label="Create new project"
+        color="primary"
+        variant="contained"
+        onClick={() => history.push('/inventory/oss/create-new')}
+        >
+        Create new project
+        </Button>
       </Box>
 
     </div>

@@ -5,4 +5,5 @@ export interface OSSProject {
     updatedAt: string;
     createdAt: string;
     status: string; 
+    hipcheck: string;
   }
