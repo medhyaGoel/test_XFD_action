@@ -81,4 +81,7 @@ COPY --from=rubyBuild /usr/bin/intrigue-ident  /usr/bin/
 ENV GLOBAL_AGENT_HTTP_PROXY=http://localhost:8080
 ENV GLOBAL_AGENT_NO_PROXY=censys.io
 
+# Install hipcheck
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/mitre/hipcheck/releases/download/hipcheck-v3.4.0/hipcheck-installer.sh | sh
+
 CMD ["./worker/worker-entry.sh"]
