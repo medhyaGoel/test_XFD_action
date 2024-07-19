@@ -558,8 +558,8 @@ export const register = wrapHandler(async (event) => {
     lastName: body.lastName,
     email: body.email.toLowerCase(),
     userType: process.env.IS_OFFLINE
-        ? UserType.GLOBAL_ADMIN
-        : UserType.STANDARD,
+      ? UserType.GLOBAL_ADMIN
+      : UserType.STANDARD,
     state: body.state,
     regionId: REGION_STATE_MAP[body.state],
     invitePending: true

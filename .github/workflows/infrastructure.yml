@@ -1,0 +1,39 @@
+---
+name: Infrastructure Pipeline
+
+env:
+  URL: https://releases.hashicorp.com/terraform/1.0.7/terraform_1.0.7_linux_amd64.zip
+
+on:
+  push:
+    branches:
+      - develop
+      - production
+    paths:
+      - infrastructure/**
+      - .github/workflows/infrastructure.yml
+  pull_request:
+    branches:
+      - develop
+      - production
+    paths:
+      - infrastructure/**
+      - .github/workflows/infrastructure.yml
+
+defaults:
+  run:
+    working-directory: ./infrastructure
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Terraform
+        run: |
+          wget ${{ env.URL }}
+          unzip terraform_1.0.7_linux_amd64.zip
+          sudo mv terraform /usr/local/bin
+
+      - name: Check format
+        run: terraform fmt -recursive -check -diff

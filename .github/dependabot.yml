@@ -1,0 +1,60 @@
+---
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-patch, version-update:semver-minor]
+      # Managed by cisagov/skeleton-generic
+      - dependency-name: actions/cache
+      - dependency-name: actions/checkout
+      - dependency-name: actions/setup-go
+      - dependency-name: actions/setup-python
+      - dependency-name: crazy-max/ghaction-dump-context
+      - dependency-name: crazy-max/ghaction-github-labeler
+      - dependency-name: crazy-max/ghaction-github-status
+      - dependency-name: hashicorp/setup-terraform
+      - dependency-name: mxschmitt/action-tmate
+      - dependency-name: step-security/harden-runner
+  - package-ecosystem: terraform
+    directory: /infrastructure
+    schedule:
+      interval: weekly
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-patch, version-update:semver-minor]
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-patch, version-update:semver-minor]
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-patch, version-update:semver-minor]
+  - package-ecosystem: pip
+    directory: /backend/worker
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-patch, version-update:semver-minor]
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: '*'
+        update-types: [version-update:semver-patch, version-update:semver-minor]

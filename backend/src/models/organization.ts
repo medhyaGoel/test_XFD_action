@@ -160,8 +160,10 @@ export class Organization extends BaseEntity {
   })
   type: string;
 
-  @ManyToMany(() => OpenSourceProject, (openSourceProject) => openSourceProject.organizations)
+  @ManyToMany(
+    () => OpenSourceProject,
+    (openSourceProject) => openSourceProject.organizations
+  )
   @JoinTable()
   openSourceProjects: OpenSourceProject[];
-
 }
