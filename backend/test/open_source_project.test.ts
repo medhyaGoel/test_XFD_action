@@ -570,8 +570,8 @@ describe('projects', () => {
 
       // Create two open-source projects
       const openSourceProject = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo41',
-        name: 'repo41',
+        url: 'https://github.com/user/repo61',
+        name: 'repo61',
         hipcheckResults: {},
         organizations: [organization]
       }).save();
@@ -586,14 +586,13 @@ describe('projects', () => {
           })
         )
         .expect(200);
-
-      // Verify the response contains the two open-source projects
-      expect(response.body.length).toBe(1);
-      expect(response.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ id: openSourceProject.id, url: openSourceProject.url, name: openSourceProject.name })
-        ])
-      );
+        expect(response.body.organizations).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: organization.id
+            })
+          ])
+        );
     });
     it('get by globalAdmin should succeed', async () => {
       // Create an organization
@@ -606,8 +605,8 @@ describe('projects', () => {
 
       // Create two open-source projects
       const openSourceProject = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo1',
-        name: 'repo1',
+        url: 'https://github.com/user/repo71',
+        name: 'repo71',
         hipcheckResults: {},
         organizations: [organization]
       }).save();
@@ -623,13 +622,13 @@ describe('projects', () => {
         )
         .expect(200);
 
-      // Verify the response contains the two open-source projects
-      expect(response.body.length).toBe(1);
-      expect(response.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ id: openSourceProject.id, url: openSourceProject.url, name: openSourceProject.name })
-        ])
-      );
+        expect(response.body.organizations).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: organization.id
+            })
+          ])
+        );
     });
     it('get by non-global member of org should succeed', async () => {
         // Create an organization
@@ -642,8 +641,8 @@ describe('projects', () => {
   
         // Create two open-source projects
         const openSourceProject1 = await OpenSourceProject.create({
-          url: 'https://github.com/user/repo1',
-          name: 'repo1',
+          url: 'https://github.com/user/repo81',
+          name: 'repo81',
           hipcheckResults: {},
           organizations: [organization]
         }).save();
@@ -658,8 +657,14 @@ describe('projects', () => {
             })
           )
           .expect(200);
-            expect(response.body.length).toEqual(1);
-            expect(response.body[0].id).toEqual(openSourceProject1.id);
+
+          expect(response.body.organizations).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                id: organization.id
+              })
+            ])
+          );
       });
     it('get by non-global non-member of org should fail', async () => {
       // Create two organizations
@@ -679,8 +684,8 @@ describe('projects', () => {
 
       // Create open-source projects associated with organization1
       const openSourceProject1 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo1',
-        name: 'repo1',
+        url: 'https://github.com/user/repo91',
+        name: 'repo91',
         hipcheckResults: {},
         organizations: [organization1]
       }).save();
