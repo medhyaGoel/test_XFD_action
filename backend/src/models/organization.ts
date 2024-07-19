@@ -8,7 +8,8 @@ import {
   BaseEntity,
   OneToMany,
   ManyToMany,
-  ManyToOne
+  ManyToOne,
+  JoinTable
 } from 'typeorm';
 import { Domain, Role, Scan, ScanTask, OrganizationTag } from '.';
 import { User } from './user';
@@ -160,6 +161,7 @@ export class Organization extends BaseEntity {
   type: string;
 
   @ManyToMany(() => OpenSourceProject, (openSourceProject) => openSourceProject.organizations)
+  @JoinTable()
   openSourceProjects: OpenSourceProject[];
 
 }

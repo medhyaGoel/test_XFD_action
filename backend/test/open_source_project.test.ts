@@ -16,6 +16,11 @@ const dns = require('dns');
 
 describe('projects', () => {
   let connection;
+  // beforeEach(async () => {
+  //   await OpenSourceProject.delete({});
+  //   await Organization.delete({});
+  //   await User.delete({});
+  // });
   beforeAll(async () => {
     connection = await connectToDatabase();
   });
@@ -38,66 +43,52 @@ describe('projects', () => {
         userType: UserType.GLOBAL_ADMIN
       }).save();
    
-      // Generate data for the open source project
-      const url = 'https://github.com/user/repo';
-      const hipcheckResults = { status: 'ok' };
-
       // Send a POST request to create an open source project
-      const response = await request(app)
-        .post(`/project_upsert/org/${organization.id}`)
-        .set(
-          'Authorization',
-          createUserToken({
-            id: user.id,
-            userType: UserType.GLOBAL_ADMIN
+      try {
+        const response = await request(app)
+          .post(`/project_upsert/org/${organization.id}`)
+          .set(
+            'Authorization',
+            createUserToken({
+              id: user.id,
+              userType: UserType.GLOBAL_ADMIN
+            })
+          )
+          .send({
+            url: 'https://github.com/user/repo2',
+            hipcheckResults: { status: 'ok' },
+            organizations: [organization.id]
           })
-        )
-        .send({
-          url,
-          hipcheckResults,
-          organizationIds: [organization.id]
-        })
-        .expect(201);
-
-      // Validate the response
-      expect(response.body.url).toEqual(url);
-      expect(response.body.hipcheckResults).toEqual(hipcheckResults);
-      expect(response.body.organizations).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ id: organization.id })
-        ])
-      );
+          .expect(201);
+    
+          expect(response.body.url).toEqual('https://github.com/user/repo2');
+          expect(response.body.hipcheckResults).toEqual({ status: 'ok' });
+          expect(response.body.organizations).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                id: organization.id
+              })
+            ])
+          );
+      
+      } catch (error) {
+        console.error('Test failed with error:', error.response); // Log the error response body
+        throw error;
+      }
     });
     it('create by member of org should succeed', async () => {
-       // Create an organization
-       const organization = await Organization.create({
+      const organization = await Organization.create({
         name: 'test-' + Math.random(),
         rootDomains: ['test-' + Math.random()],
         ipBlocks: [],
         isPassive: false
       }).save();
 
-      // Create two open-source projects
-      const openSourceProject1 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo1',
-        name: 'repo1',
-        hipcheckResults: {},
-        organizations: [organization]
-      }).save();
-
-      const openSourceProject2 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo2',
-        name: 'repo2',
-        hipcheckResults: {},
-        organizations: [organization]
-      }).save();
-
-      // Generate data for the open source project
       const url = 'https://github.com/user/repo';
-      const hipcheckResults = { status: 'ok' };
-
+      const hipcheckResults = { status: 'ok' };   
       // Send a POST request to create an open source project
-      const response = await request(app)
+      try {
+        const response = await request(app)
         .post(`/project_upsert/org/${organization.id}`)
         .set(
           'Authorization',
@@ -108,18 +99,23 @@ describe('projects', () => {
         .send({
           url,
           hipcheckResults,
-          organizationIds: [organization.id]
+          organizations: [organization.id]
         })
         .expect(201);
-      // Send a request to the endpoint that lists open-source projects for the organization
-    // Verify the response contains the two open-source projects
-        expect(response.body.length).toBe(3);
-        expect(response.body).toEqual(
-          expect.arrayContaining([
-            expect.objectContaining({ id: openSourceProject1.id, url: openSourceProject1.url, name: openSourceProject1.name }),
-            expect.objectContaining({ id: openSourceProject2.id, url: openSourceProject2.url, name: openSourceProject2.name })
-          ])
-        );
+    
+        expect(response.body.url).toEqual('https://github.com/user/repo');
+          expect(response.body.hipcheckResults).toEqual({ status: 'ok' });
+          expect(response.body.organizations).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                id: organization.id
+              })
+            ])
+          );
+      } catch (error) {
+        console.error('Test failed with error:', error.response); // Log the error response body
+        throw error;
+      }
     });
     it('create by non member of org should fail', async () => {
             // Create two organizations

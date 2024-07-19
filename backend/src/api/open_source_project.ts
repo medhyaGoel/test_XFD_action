@@ -202,11 +202,13 @@ export const listByOrg = wrapHandler(async (event) => {
  */
 export const create_proj = wrapHandler(async (event) => {
   const orgId = event.pathParameters?.orgId;
+  const parsedBody = JSON.parse(event.body ?? '{}');
+  const { url, hipcheckResults, organizations } = parsedBody;
+
   // check permissions
   if (!orgId || (!isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(orgId))) return Unauthorized;
-
-
-  const body = await validateBody(Organization, event.body);
+  
+  // const body = await validateBody(OpenSourceProject, event.body);
   await connectToDatabase();
 
   let openSourceProject: OpenSourceProject | undefined;
@@ -224,18 +226,25 @@ export const create_proj = wrapHandler(async (event) => {
     // Create a new open source project
     openSourceProject = await OpenSourceProject.create({
       // Set other properties as needed
-    }).save();
+      url: url,
+      hipcheckResults: hipcheckResults    
+    });
+    await openSourceProject.save();
+  }
+
+  if (!openSourceProject.organizations) {
+    openSourceProject.organizations = [];
   }
 
   // Associate the open source project with the specified organization
   const organization = await Organization.findOneOrFail(orgId);
-  if (openSourceProject && !openSourceProject.organizations.find(org => org.id === organization.id)) {
+  if (!openSourceProject.organizations.find(org => org.id === organization.id)) {
     openSourceProject.organizations.push(organization);
     await openSourceProject.save();
   }
 
   return {
-    statusCode: 200,
+    statusCode: 201,
     body: JSON.stringify(openSourceProject),
   };
 });
