@@ -716,13 +716,13 @@ authenticatedRoute.get(
 
 // get
 authenticatedRoute.get(
-  '/project/:projectId',
+  '/project/grabInfo/:projectId',
   handlerToExpress(open_source_project.getById)
 );
 
 // list
 authenticatedRoute.get(
-  '/project/org/:orgId',
+  '/project/listOrgs/:orgId',
   handlerToExpress(open_source_project.listByOrg)
 );
 

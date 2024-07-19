@@ -182,15 +182,17 @@ export const getById = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const listByOrg = wrapHandler(async (event) => {
+  console.log("im here");
   const orgId = event.pathParameters?.orgId;
   // check permissions
   if (!orgId || (!isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(orgId))) return Unauthorized;
   await connectToDatabase();
+  console.log("made it here");
   const organization = await Organization.findOne({
     where: { id: orgId },
     relations: ['openSourceProjects']
   });
-
+  console.log("my org = ", organization);
   if (organization) {
     return {
       statusCode: 200,

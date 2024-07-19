@@ -379,17 +379,24 @@ describe('projects', () => {
 
       // Create two open-source projects
       const openSourceProject1 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo1',
-        name: 'repo1',
+        url: 'https://github.com/user/repo21',
+        name: 'repo21',
         hipcheckResults: {},
         organizations: [organization]
       }).save();
 
       const openSourceProject2 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo2',
-        name: 'repo2',
+        url: 'https://github.com/user/repo22',
+        name: 'repo22',
         hipcheckResults: {},
         organizations: [organization]
+      }).save();
+
+      const user = await User.create({
+        firstName: '',
+        lastName: '',
+        email: Math.random() + '@crossfeed.cisa.gov',
+        userType: UserType.GLOBAL_VIEW
       }).save();
 
       // Send a request to the endpoint that lists open-source projects for the organization
@@ -398,6 +405,7 @@ describe('projects', () => {
         .set(
           'Authorization',
           createUserToken({
+            id: user.id,
             userType: UserType.GLOBAL_VIEW
           })
         )
@@ -423,17 +431,24 @@ describe('projects', () => {
 
     // Create two open-source projects
     const openSourceProject1 = await OpenSourceProject.create({
-      url: 'https://github.com/user/repo1',
-      name: 'repo1',
+      url: 'https://github.com/user/repo31',
+      name: 'repo31',
       hipcheckResults: {},
       organizations: [organization]
     }).save();
 
     const openSourceProject2 = await OpenSourceProject.create({
-      url: 'https://github.com/user/repo2',
-      name: 'repo2',
+      url: 'https://github.com/user/repo32',
+      name: 'repo32',
       hipcheckResults: {},
       organizations: [organization]
+    }).save();
+
+    const user = await User.create({
+      firstName: '',
+      lastName: '',
+      email: Math.random() + '@crossfeed.cisa.gov',
+      userType: UserType.GLOBAL_ADMIN
     }).save();
 
     // Send a request to the endpoint that lists open-source projects for the organization
@@ -442,6 +457,7 @@ describe('projects', () => {
       .set(
         'Authorization',
         createUserToken({
+          id: user.id,
           userType: UserType.GLOBAL_ADMIN
         })
       )
@@ -455,7 +471,7 @@ describe('projects', () => {
         expect.objectContaining({ id: openSourceProject2.id, url: openSourceProject2.url, name: openSourceProject2.name })
       ])
     );
-    });
+  });
     it('list by non-global member of org should succeed', async () => {
         // Create an organization
       const organization = await Organization.create({
@@ -467,15 +483,15 @@ describe('projects', () => {
 
       // Create two open-source projects
       const openSourceProject1 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo1',
-        name: 'repo1',
+        url: 'https://github.com/user/repo41',
+        name: 'repo41',
         hipcheckResults: {},
         organizations: [organization]
       }).save();
 
       const openSourceProject2 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo2',
-        name: 'repo2',
+        url: 'https://github.com/user/repo42',
+        name: 'repo42',
         hipcheckResults: {},
         organizations: [organization]
       }).save();
@@ -517,15 +533,15 @@ describe('projects', () => {
 
       // Create open-source projects associated with organization1
       const openSourceProject1 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo1',
-        name: 'repo1',
+        url: 'https://github.com/user/repo51',
+        name: 'repo51',
         hipcheckResults: {},
         organizations: [organization1]
       }).save();
 
       const openSourceProject2 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo2',
-        name: 'repo2',
+        url: 'https://github.com/user/repo52',
+        name: 'repo52',
         hipcheckResults: {},
         organizations: [organization1]
       }).save();
@@ -554,8 +570,8 @@ describe('projects', () => {
 
       // Create two open-source projects
       const openSourceProject = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo1',
-        name: 'repo1',
+        url: 'https://github.com/user/repo41',
+        name: 'repo41',
         hipcheckResults: {},
         organizations: [organization]
       }).save();
