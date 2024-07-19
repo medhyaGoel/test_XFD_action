@@ -54,10 +54,10 @@ import { promises } from 'dns';
  *    - Organizations
  */
 export const del = wrapHandler(async (event) => {
-  const id = event.pathParameters?.organizationId;
+  const id = event.pathParameters?.orgId;
   const projectId = event.pathParameters?.projectId;
 
-  if (!id || !isUUID(id) || !projectId || !isUUID(projectId)) {
+  if (!id || !projectId ) {
     return NotFound;
   }
 
@@ -75,33 +75,44 @@ export const del = wrapHandler(async (event) => {
     if (!openSourceProject) {
       return NotFound;
     }
-    const orgIds = openSourceProject.organizations.map(org => org.id);
 
-    if (orgIds.length > 1) {
-      // Disconnect the open source project from the organization
-      organization.openSourceProjects = organization.openSourceProjects.filter(proj => proj.id !== projectId);
-      await organization.save();
+   // Use QueryBuilder to load the organizations relation for the open source project -- is there an easier way to do this?
+   const openSourceProjectWithOrganizations = await OpenSourceProject.createQueryBuilder('osp')
+   .leftJoinAndSelect('osp.organizations', 'organization')
+   .where('osp.id = :projectId', { projectId })
+   .getOne();
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: 'Project disconnected successfully' }),
-      };
-    } else {
-      // delete the project
-      await openSourceProject.remove();
+ if (!openSourceProjectWithOrganizations) {
+   return NotFound;
+ }
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: 'Project deleted successfully' }),
-      };
-    }
+ const orgIds = openSourceProjectWithOrganizations.organizations.map(org => org.id);
 
-  } catch (error) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify(error)
-    };
-  }
+ if (orgIds.length > 1) {
+   // Disconnect the open source project from the organization
+   organization.openSourceProjects = organization.openSourceProjects.filter(proj => proj.id !== projectId);
+   await organization.save();
+
+   return {
+     statusCode: 200,
+     body: JSON.stringify({ message: 'Project disconnected successfully' }),
+   };
+ } else {
+   // Delete the project
+   await openSourceProjectWithOrganizations.remove();
+
+   return {
+     statusCode: 200,
+     body: JSON.stringify({ message: 'Project deleted successfully' }),
+   };
+ }
+
+} catch (error) {
+ return {
+   statusCode: 404,
+   body: JSON.stringify(error)
+ };
+}
 });
 
 

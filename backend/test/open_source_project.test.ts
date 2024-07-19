@@ -206,7 +206,7 @@ describe('projects', () => {
         }).save();
 
         const response = await request(app)
-        .delete(`/open-source-projects/${organization.id}/${openSourceProject.id}`)
+        .delete(`/project/del/${openSourceProject.id}/${organization.id}`)
         .set(
           'Authorization',
           createUserToken({
@@ -217,7 +217,7 @@ describe('projects', () => {
         .expect(200);
             // Verify the project no longer exists
         const deletedProject = await OpenSourceProject.findOne({ where: { id: openSourceProject.id } });
-        expect(deletedProject).toBeNull();
+        expect(deletedProject).toBeFalsy(); 
       });
     it('delete of proj in 2+ orgs by globalAdmin should succeed', async () => {
         // Create an organization
@@ -249,7 +249,7 @@ describe('projects', () => {
         }).save();
 
         const response = await request(app)
-        .delete(`/open-source-projects/${organization1.id}/${openSourceProject.id}`)
+        .delete(`/project/del/${openSourceProject.id}/${organization1.id}`)
         .set(
           'Authorization',
           createUserToken({
@@ -275,17 +275,17 @@ describe('projects', () => {
               isPassive: false
             }).save();
       
-            // Create two open-source projects
+            // Create an open-source project
             const openSourceProject1 = await OpenSourceProject.create({
-              url: 'https://github.com/user/repo1',
-              name: 'repo1',
+              url: 'https://github.com/user/repo11',
+              name: 'repo11',
               hipcheckResults: {},
               organizations: [organization]
             }).save();
     
-            // Send a request to the endpoint that lists open-source projects for the organization
+            // Send a request to the endpoint
             const response = await request(app)
-              .delete(`/open-source-projects/${organization.id}/${openSourceProject1.id}`)
+              .delete(`/project/del/${openSourceProject1.id}/${organization.id}`)
               .set(
                 'Authorization',
                 createUserToken({
@@ -293,9 +293,9 @@ describe('projects', () => {
                 })
               )
               .expect(200);
-          // Verify the response contains the two open-source projects
+          // Verify the response
           const deletedProject = await OpenSourceProject.findOne({ where: { id: openSourceProject1.id } });
-          expect(deletedProject).toBeNull();
+          expect(deletedProject).toBeFalsy(); 
     });
     it('delete by non member of org should fail', async () => {
       const organization1 = await Organization.create({
@@ -314,15 +314,15 @@ describe('projects', () => {
 
       // Create open-source projects associated with organization1
       const openSourceProject1 = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo1',
-        name: 'repo1',
+        url: 'https://github.com/user/repo12',
+        name: 'repo12',
         hipcheckResults: {},
         organizations: [organization1]
       }).save();
 
       // Request with a user token that is not associated with organization1
       const response = await request(app)
-        .delete(`/open-source-projects/${organization1.id}/${openSourceProject1.id}`)
+        .delete(`/project/del/${openSourceProject1.id}/${organization1.id}`)
         .set(
           'Authorization',
           createUserToken({
@@ -342,8 +342,8 @@ describe('projects', () => {
 
       // Create two open-source projects
       const openSourceProject = await OpenSourceProject.create({
-        url: 'https://github.com/user/repo1',
-        name: 'repo1',
+        url: 'https://github.com/user/repo13',
+        name: 'repo13',
         hipcheckResults: {},
         organizations: [organization]
       }).save();
@@ -356,7 +356,7 @@ describe('projects', () => {
       }).save();
 
       const response = await request(app)
-      .delete(`/open-source-projects/${organization.id}/${openSourceProject.id}`)
+      .delete(`/project/del/${openSourceProject.id}/${organization.id}`)
       .set(
         'Authorization',
         createUserToken({
