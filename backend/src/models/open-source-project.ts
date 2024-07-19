@@ -37,7 +37,10 @@ export class OpenSourceProject extends BaseEntity {
   })
   hipcheckResults: object;
 
-  @ManyToMany(() => Organization, (organization) => organization.openSourceProjects)
+  @ManyToMany(
+    () => Organization,
+    (organization) => organization.openSourceProjects
+  )
   organizations: Organization[];
 
   @BeforeInsert()
@@ -50,4 +53,3 @@ export class OpenSourceProject extends BaseEntity {
     }
   }
 }
-  
