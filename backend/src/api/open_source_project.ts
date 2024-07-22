@@ -157,7 +157,7 @@ export const getById = wrapHandler(async (event) => {
   const orgIds = project.organizations.map(org => org.id);
   const userOrgs = getOrgMemberships(event);
   
-  if (!isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && !userOrgs.some(userId => orgIds.includes(userId))) return Unauthorized;
+  if (!isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && (new Set(userOrgs)).intersection(new Set(orgIds)).size == 0) return Unauthorized;
   
   return {
     
@@ -182,17 +182,14 @@ export const getById = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const listByOrg = wrapHandler(async (event) => {
-  console.log("im here");
   const orgId = event.pathParameters?.orgId;
   // check permissions
   if (!orgId || (!isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(orgId))) return Unauthorized;
   await connectToDatabase();
-  console.log("made it here");
   const organization = await Organization.findOne({
     where: { id: orgId },
     relations: ['openSourceProjects']
   });
-  console.log("my org = ", organization);
   if (organization) {
     return {
       statusCode: 200,
