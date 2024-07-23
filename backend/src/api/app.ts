@@ -709,32 +709,31 @@ authenticatedRoute.get(
   handlerToExpress(organizations.getAllV2)
 );
 
-
 //************* */
 //  Open Source Project Routes   //
 //************* */
 
 // get
 authenticatedRoute.get(
-  '/project/grabInfo/:projectId',
+  '/projects/:projectId',
   handlerToExpress(open_source_project.getById)
 );
 
 // list
 authenticatedRoute.get(
-  '/project/listOrgs/:orgId',
+  '/projects',
   handlerToExpress(open_source_project.listByOrg)
 );
 
 // create
 authenticatedRoute.post(
-  '/project_upsert/org/:orgId',
+  '/projects',
   handlerToExpress(open_source_project.create_proj)
 );
 
 // delete
 authenticatedRoute.delete(
-  '/project/del/:projectId/:orgId',
+  '/projects/:projectId',
   handlerToExpress(open_source_project.del)
 );
 

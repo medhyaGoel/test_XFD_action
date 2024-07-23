@@ -43,7 +43,7 @@ import { promises } from 'dns';
 /**
  * @swagger
  *
- * /project/del/{projectId}/{orgId}:
+ * /projects/{projectId}:
  *  delete:
  *    description: Disconnect a particular open source project from a given organization.
  *    parameters:
@@ -54,74 +54,79 @@ import { promises } from 'dns';
  *    - Organizations
  */
 export const del = wrapHandler(async (event) => {
-  const id = event.pathParameters?.orgId;
+  // parse inputs
+  if (!event.body) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'orgId in request body is required' })
+    };
+  }
+  const { id } = JSON.parse(event.body);
   const projectId = event.pathParameters?.projectId;
 
-  if (!id || !projectId ) {
+  // validate permissions
+  if (!id || !projectId) {
     return NotFound;
   }
-
-  if (!isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(id)) return Unauthorized;
+  if (!isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(id))
+    return Unauthorized;
 
   await connectToDatabase();
 
   try {
-    const organization = await Organization.findOne(id, { relations: ['openSourceProjects'] });
+    // find org and load its openSourceProjects
+    const organization = await Organization.findOne(id, {
+      relations: ['openSourceProjects']
+    });
     if (!organization) {
       return NotFound;
     }
 
-    const openSourceProject = organization.openSourceProjects.find(proj => proj.id === projectId);
-    if (!openSourceProject) {
+    // find project and load its organizations
+    const openSourceProjectWithOrganizations = await OpenSourceProject.findOne({
+      where: { id: projectId },
+      relations: ['organizations']
+    });
+    if (!openSourceProjectWithOrganizations) {
       return NotFound;
     }
 
-   // Use QueryBuilder to load the organizations relation for the open source project -- is there an easier way to do this?
-   const openSourceProjectWithOrganizations = await OpenSourceProject.createQueryBuilder('osp')
-   .leftJoinAndSelect('osp.organizations', 'organization')
-   .where('osp.id = :projectId', { projectId })
-   .getOne();
-
- if (!openSourceProjectWithOrganizations) {
-   return NotFound;
- }
-
- const orgIds = openSourceProjectWithOrganizations.organizations.map(org => org.id);
-
- if (orgIds.length > 1) {
-   // Disconnect the open source project from the organization
-   organization.openSourceProjects = organization.openSourceProjects.filter(proj => proj.id !== projectId);
-   await organization.save();
-
-   return {
-     statusCode: 200,
-     body: JSON.stringify({ message: 'Project disconnected successfully' }),
-   };
- } else {
-   // Delete the project
-   await openSourceProjectWithOrganizations.remove();
-
-   return {
-     statusCode: 200,
-     body: JSON.stringify({ message: 'Project deleted successfully' }),
-   };
- }
-
-} catch (error) {
- return {
-   statusCode: 404,
-   body: JSON.stringify(error)
- };
-}
+  // If project is associated with multiple organizations...
+    if (openSourceProjectWithOrganizations.organizations.length > 1) {
+      // remove project from organization's projects
+      organization.openSourceProjects = organization.openSourceProjects.filter(
+        (proj) => proj.id !== projectId
+      );
+      await organization.save();
+      // remove organization from project's organizations
+      openSourceProjectWithOrganizations.organizations = openSourceProjectWithOrganizations.organizations.filter(
+        (org) => org.id !== id
+      );
+      await openSourceProjectWithOrganizations.save();
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ message: 'Project disconnected successfully' })
+      };
+    } else {
+    // Delete the project if no other organization memberships
+      await openSourceProjectWithOrganizations.remove();
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ message: 'Project deleted successfully' })
+      };
+    }
+  } catch (error) {
+    return {
+      statusCode: 404,
+      body: JSON.stringify(error)
+    };
+  }
 });
-
-
-
 
 /**
  * @swagger
  *
- * /project/grabInfo/{projectId}:
+ * /projects/{projectId}:
  *  get:
  *    description: Get information about a particular open source project.
  *    parameters:
@@ -136,41 +141,39 @@ export const getById = wrapHandler(async (event) => {
   if (!id) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: 'Project ID is required' }),
+      body: JSON.stringify({ error: 'Project ID is required' })
     };
   }
- 
+
   await connectToDatabase();
 
   const project = await OpenSourceProject.findOne(id, {
-    relations: ['organizations'],
+    relations: ['organizations']
   });
 
   if (!project) {
     return {
       statusCode: 404,
-      body: JSON.stringify({ error: 'Project not found' }),
+      body: JSON.stringify({ error: 'Project not found' })
     };
   }
- 
+
   // retrieve associated orgid(s)
-  const orgIds = project.organizations.map(org => org.id);
+  const orgIds = project.organizations.map((org) => org.id);
   const userOrgs = getOrgMemberships(event);
-  
-  if (!isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && !userOrgs.some(userId => orgIds.includes(userId))) return Unauthorized;
-  
+
+  if ( !isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && (new Set(userOrgs)).intersection(new Set(orgIds)).size == 0) return Unauthorized;
+
   return {
-    
     statusCode: 200,
-    body: JSON.stringify(project),
+    body: JSON.stringify(project)
   };
 });
-
 
 /**
  * @swagger
  *
- * /project/listOrgs/{orgId}:
+ * /projects:
  *  list:
  *    description: List open source projects for given organization.
  *    parameters:
@@ -182,17 +185,26 @@ export const getById = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const listByOrg = wrapHandler(async (event) => {
-  console.log("im here");
-  const orgId = event.pathParameters?.orgId;
+  if (!event.body) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'orgId in request body is required' })
+    };
+  }
+  const { orgId } = JSON.parse(event.body);
   // check permissions
-  if (!orgId || (!isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(orgId))) return Unauthorized;
+  if (
+    !orgId ||
+    (!isGlobalViewAdmin(event) &&
+      !isGlobalWriteAdmin(event) &&
+      !getOrgMemberships(event).includes(orgId))
+  )
+    return Unauthorized;
   await connectToDatabase();
-  console.log("made it here");
   const organization = await Organization.findOne({
     where: { id: orgId },
     relations: ['openSourceProjects']
   });
-  console.log("my org = ", organization);
   if (organization) {
     return {
       statusCode: 200,
@@ -201,8 +213,6 @@ export const listByOrg = wrapHandler(async (event) => {
   }
   return NotFound;
 });
-
-
 
 /**
  * @swagger
@@ -214,13 +224,16 @@ export const listByOrg = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const create_proj = wrapHandler(async (event) => {
-  const orgId = event.pathParameters?.orgId;
   const parsedBody = JSON.parse(event.body ?? '{}');
-  const { url, hipcheckResults, organizations } = parsedBody;
+  const { url, hipcheckResults, orgId } = parsedBody;
 
   // check permissions
-  if (!orgId || (!isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(orgId))) return Unauthorized;
-  
+  if (
+    !orgId ||
+    (!isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(orgId))
+  )
+    return Unauthorized;
+
   // const body = await validateBody(OpenSourceProject, event.body);
   await connectToDatabase();
 
@@ -229,7 +242,7 @@ export const create_proj = wrapHandler(async (event) => {
   // Check if there's an existing open source project without an organization
   const existingProjects = await OpenSourceProject.createQueryBuilder('osp')
     .leftJoinAndSelect('osp.organizations', 'organizations')
-    .where('organizations.id IS NULL')
+    .where('osp.url = :url', { url })
     .getMany();
 
   if (existingProjects.length > 0) {
@@ -240,7 +253,7 @@ export const create_proj = wrapHandler(async (event) => {
     openSourceProject = await OpenSourceProject.create({
       // Set other properties as needed
       url: url,
-      hipcheckResults: hipcheckResults    
+      hipcheckResults: hipcheckResults
     });
     await openSourceProject.save();
   }
@@ -250,14 +263,18 @@ export const create_proj = wrapHandler(async (event) => {
   }
 
   // Associate the open source project with the specified organization
-  const organization = await Organization.findOneOrFail(orgId);
-  if (!openSourceProject.organizations.find(org => org.id === organization.id)) {
+  try {
+    const organization = await Organization.findOneOrFail({ id: orgId });
     openSourceProject.organizations.push(organization);
     await openSourceProject.save();
+  } catch (error) {
+    return {
+      statusCode: 404,
+      body: JSON.stringify(error)
+    };
   }
-
   return {
     statusCode: 201,
-    body: JSON.stringify(openSourceProject),
+    body: JSON.stringify(openSourceProject)
   };
 });
