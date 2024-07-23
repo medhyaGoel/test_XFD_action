@@ -161,9 +161,9 @@ export const getById = wrapHandler(async (event) => {
   // retrieve associated orgid(s)
   const orgIds = project.organizations.map((org) => org.id);
   const userOrgs = getOrgMemberships(event);
-
-  if ( !isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && (new Set(userOrgs)).intersection(new Set(orgIds)).size == 0) return Unauthorized;
-
+  
+  if (!isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && (new Set(userOrgs)).intersection(new Set(orgIds)).size == 0) return Unauthorized;
+  
   return {
     statusCode: 200,
     body: JSON.stringify(project)
