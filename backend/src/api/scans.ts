@@ -140,7 +140,7 @@ export const SCAN_SCHEMA: ScanSchema = {
   hipcheck: {
     type: 'fargate',
     isPassive: true,
-    global: false,
+    global: true,
     description:
       'Runs Hipcheck scan on open source projects and saves scan results to database'
   },

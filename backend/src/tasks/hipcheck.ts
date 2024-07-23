@@ -30,7 +30,7 @@ export const handler = async (commandOptions: CommandOptions) => {
     ];
     console.log('Running Hipcheck scan with args', args);
 
-    const output = spawnSync('hc', args, { stdio: 'pipe' });
+    const output = spawnSync('$HOME/.cargo/bin/hc', args, { stdio: 'pipe' });
 
     if (output.error) {
       throw output.error;
