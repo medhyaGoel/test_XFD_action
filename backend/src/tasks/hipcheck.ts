@@ -23,16 +23,21 @@ export const handler = async (commandOptions: CommandOptions) => {
 
   try {
     const args = [
+      'check',
       '--target', 'repo',
       '--format', 'json',
       hardcodedProject.url,
     ];
     console.log('Running Hipcheck scan with args', args);
 
-    const output = spawnSync('hc check', args, { stdio: 'pipe' });
-    const results = JSON.parse(output);
+    const output = spawnSync('hc', args, { stdio: 'pipe' });
+
+    if (output.error) {
+      throw output.error;
+    }
     
-    hardcodedProject.hipcheckResults = results;
+    const result = JSON.parse(output.stdout.toString());
+    hardcodedProject.hipcheckResults = result;
 
     const projectRepository = getRepository(OpenSourceProject); 
     await projectRepository.save(hardcodedProject);
@@ -40,7 +45,7 @@ export const handler = async (commandOptions: CommandOptions) => {
     console.log(`Hipcheck completed for project: ${hardcodedProject.name}`);
   } catch (e) {
     console.error('Error running Hipcheck:', e);
-  } 
+  }
 
   //console.log('Running Hipcheck scan on organization', organizationName);
  
