@@ -1,18 +1,13 @@
 import * as request from 'supertest';
 import app from '../src/api/app';
-import { createUserToken, DUMMY_USER_ID } from './util';
+import { createUserToken } from './util';
 import {
   Organization,
   OpenSourceProject,
-  Role,
   connectToDatabase,
-  Scan,
-  ScanTask,
   User,
-  OrganizationTag,
   UserType
 } from '../src/models';
-const dns = require('dns');
 
 describe('projects', () => {
   let connection;

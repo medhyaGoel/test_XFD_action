@@ -1,45 +1,11 @@
+import { IsString, IsObject, IsNotEmpty } from 'class-validator';
+import { Organization, OpenSourceProject, connectToDatabase } from '../models';
+import { validateBody, wrapHandler, NotFound, Unauthorized } from './helpers';
 import {
-  IsString,
-  isUUID,
-  IsArray,
-  IsBoolean,
-  IsUUID,
-  IsOptional,
-  IsObject,
-  IsNotEmpty,
-  IsNumber,
-  IsEnum
-} from 'class-validator';
-import {
-  Organization,
-  OpenSourceProject,
-  connectToDatabase,
-  Role,
-  ScanTask,
-  Scan,
-  User,
-  OrganizationTag,
-  PendingDomain
-} from '../models';
-import {
-  validateBody,
-  wrapHandler,
-  NotFound,
-  REGION_STATE_MAP,
-  Unauthorized
-} from './helpers';
-import {
-  isOrgAdmin,
   isGlobalWriteAdmin,
-  isRegionalAdmin,
-  isRegionalAdminForOrganization,
   getOrgMemberships,
   isGlobalViewAdmin
 } from './auth';
-import { In } from 'typeorm';
-import { plainToClass } from 'class-transformer';
-import { randomBytes } from 'crypto';
-import { promises } from 'dns';
 
 /**
  * @swagger
@@ -55,7 +21,7 @@ import { promises } from 'dns';
  *    - Organizations
  */
 export const del = wrapHandler(async (event) => {
-  const validatedBody = await validateBody(nonCreateRequest, event.body);
+  const validatedBody = await validateBody(NonCreateRequest, event.body);
   const projectId = event.pathParameters?.projectId;
 
   // validate permissions
@@ -187,7 +153,7 @@ export const getById = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const listByOrg = wrapHandler(async (event) => {
-  const validatedBody = await validateBody(nonCreateRequest, event.body);
+  const validatedBody = await validateBody(NonCreateRequest, event.body);
   // check permissions
   if (
     !validatedBody.orgId ||
@@ -220,7 +186,7 @@ export const listByOrg = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const create_proj = wrapHandler(async (event) => {
-  const validatedBody = await validateBody(creationRequest, event.body);
+  const validatedBody = await validateBody(CreationRequest, event.body);
 
   // check permissions
   if (
@@ -277,7 +243,7 @@ export const create_proj = wrapHandler(async (event) => {
   };
 });
 
-class creationRequest {
+class CreationRequest {
   @IsString()
   @IsNotEmpty()
   url: string;
@@ -291,7 +257,7 @@ class creationRequest {
   orgId: string;
 }
 
-class nonCreateRequest {
+class NonCreateRequest {
   @IsString()
   @IsNotEmpty()
   orgId: string;
