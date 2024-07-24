@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsUUID,
   IsOptional,
+  IsObject,
   IsNotEmpty,
   IsNumber,
   IsEnum
@@ -91,7 +92,7 @@ export const del = wrapHandler(async (event) => {
       return NotFound;
     }
 
-  // If project is associated with multiple organizations...
+    // If project is associated with multiple organizations...
     if (openSourceProjectWithOrganizations.organizations.length > 1) {
       // remove project from organization's projects
       organization.openSourceProjects = organization.openSourceProjects.filter(
@@ -99,16 +100,17 @@ export const del = wrapHandler(async (event) => {
       );
       await organization.save();
       // remove organization from project's organizations
-      openSourceProjectWithOrganizations.organizations = openSourceProjectWithOrganizations.organizations.filter(
-        (org) => org.id !== id
-      );
+      openSourceProjectWithOrganizations.organizations =
+        openSourceProjectWithOrganizations.organizations.filter(
+          (org) => org.id !== id
+        );
       await openSourceProjectWithOrganizations.save();
       return {
         statusCode: 200,
         body: JSON.stringify({ message: 'Project disconnected successfully' })
       };
     } else {
-    // Delete the project if no other organization memberships
+      // Delete the project if no other organization memberships
       await openSourceProjectWithOrganizations.remove();
       return {
         statusCode: 200,
@@ -161,8 +163,13 @@ export const getById = wrapHandler(async (event) => {
   // retrieve associated orgid(s)
   const orgIds = project.organizations.map((org) => org.id);
   const userOrgs = getOrgMemberships(event);
-  
-  if (!isGlobalViewAdmin(event) && !isGlobalWriteAdmin(event) && !userOrgs.some(userId => orgIds.includes(userId))) return Unauthorized;  
+
+  if (
+    !isGlobalViewAdmin(event) &&
+    !isGlobalWriteAdmin(event) &&
+    !userOrgs.some((userId) => orgIds.includes(userId))
+  )
+    return Unauthorized;
   return {
     statusCode: 200,
     body: JSON.stringify(project)
@@ -223,13 +230,13 @@ export const listByOrg = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const create_proj = wrapHandler(async (event) => {
-  const parsedBody = JSON.parse(event.body ?? '{}');
-  const { url, hipcheckResults, orgId } = parsedBody;
+  const validatedBody = await validateBody(creationRequest, event.body);
 
   // check permissions
   if (
-    !orgId ||
-    (!isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(orgId))
+    !validatedBody.orgId ||
+    (!isGlobalWriteAdmin(event) &&
+      !getOrgMemberships(event).includes(validatedBody.orgId))
   )
     return Unauthorized;
 
@@ -241,7 +248,7 @@ export const create_proj = wrapHandler(async (event) => {
   // Check if there's an existing open source project without an organization
   const existingProjects = await OpenSourceProject.createQueryBuilder('osp')
     .leftJoinAndSelect('osp.organizations', 'organizations')
-    .where('osp.url = :url', { url })
+    .where('osp.url = :url', { url: validatedBody.url })
     .getMany();
 
   if (existingProjects.length > 0) {
@@ -251,8 +258,8 @@ export const create_proj = wrapHandler(async (event) => {
     // Create a new open source project
     openSourceProject = await OpenSourceProject.create({
       // Set other properties as needed
-      url: url,
-      hipcheckResults: hipcheckResults
+      url: validatedBody.url,
+      hipcheckResults: validatedBody.hipcheckResults
     });
     await openSourceProject.save();
   }
@@ -263,7 +270,9 @@ export const create_proj = wrapHandler(async (event) => {
 
   // Associate the open source project with the specified organization
   try {
-    const organization = await Organization.findOneOrFail({ id: orgId });
+    const organization = await Organization.findOneOrFail({
+      id: validatedBody.orgId
+    });
     openSourceProject.organizations.push(organization);
     await openSourceProject.save();
   } catch (error) {
@@ -277,3 +286,17 @@ export const create_proj = wrapHandler(async (event) => {
     body: JSON.stringify(openSourceProject)
   };
 });
+
+class creationRequest {
+  @IsString()
+  @IsNotEmpty()
+  url: string;
+
+  @IsObject()
+  @IsNotEmpty()
+  hipcheckResults: object;
+
+  @IsString()
+  @IsNotEmpty()
+  orgId: string;
+}

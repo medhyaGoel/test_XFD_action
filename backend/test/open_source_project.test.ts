@@ -78,8 +78,6 @@ describe('projects', () => {
         isPassive: false
       }).save();
 
-      const url = 'https://github.com/user/repo';
-      const hipcheckResults = { status: 'ok' };
       // Send a POST request to create an open source project
       try {
         const response = await request(app)
@@ -91,8 +89,8 @@ describe('projects', () => {
             })
           )
           .send({
-            url,
-            hipcheckResults,
+            url: 'https://github.com/user/repo',
+            hipcheckResults: { status: 'ok' },
             orgId: organization.id
           })
           .expect(201);
@@ -135,7 +133,11 @@ describe('projects', () => {
             roles: [{ org: organization2.id, role: 'user' }]
           })
         )
-        .send({ orgId: organization1.id })
+        .send({
+          url: 'https://github.com/user/repo2',
+          hipcheckResults: { status: 'ok' },
+          orgId: organization1.id
+        })
         .expect(403); // Expecting a 403 Forbidden for unauthorized access
     });
     it('create by globalView should fail', async () => {
@@ -170,7 +172,7 @@ describe('projects', () => {
         .send({
           url,
           hipcheckResults,
-          orgId: [organization.id]
+          orgId: organization.id
         })
         .expect(403);
     });
