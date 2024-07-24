@@ -37,14 +37,6 @@ export const del = wrapHandler(async (event) => {
   await connectToDatabase();
 
   try {
-    // find org and load its openSourceProjects
-    const organization = await Organization.findOne(validatedBody.orgId, {
-      relations: ['openSourceProjects']
-    });
-    if (!organization) {
-      return NotFound;
-    }
-
     // find project and load its organizations
     const openSourceProjectWithOrganizations = await OpenSourceProject.findOne({
       where: { id: projectId },
@@ -56,11 +48,6 @@ export const del = wrapHandler(async (event) => {
 
     // If project is associated with multiple organizations...
     if (openSourceProjectWithOrganizations.organizations.length > 1) {
-      // remove project from organization's projects
-      organization.openSourceProjects = organization.openSourceProjects.filter(
-        (proj) => proj.id !== projectId
-      );
-      await organization.save();
       // remove organization from project's organizations
       openSourceProjectWithOrganizations.organizations =
         openSourceProjectWithOrganizations.organizations.filter(
