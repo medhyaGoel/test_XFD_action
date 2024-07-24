@@ -55,28 +55,24 @@ import { promises } from 'dns';
  *    - Organizations
  */
 export const del = wrapHandler(async (event) => {
-  // parse inputs
-  if (!event.body) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'orgId in request body is required' })
-    };
-  }
-  const { id } = JSON.parse(event.body);
+  const validatedBody = await validateBody(nonCreateRequest, event.body);
   const projectId = event.pathParameters?.projectId;
 
   // validate permissions
-  if (!id || !projectId) {
+  if (!validatedBody.orgId || !projectId) {
     return NotFound;
   }
-  if (!isGlobalWriteAdmin(event) && !getOrgMemberships(event).includes(id))
+  if (
+    !isGlobalWriteAdmin(event) &&
+    !getOrgMemberships(event).includes(validatedBody.orgId)
+  )
     return Unauthorized;
 
   await connectToDatabase();
 
   try {
     // find org and load its openSourceProjects
-    const organization = await Organization.findOne(id, {
+    const organization = await Organization.findOne(validatedBody.orgId, {
       relations: ['openSourceProjects']
     });
     if (!organization) {
@@ -102,7 +98,7 @@ export const del = wrapHandler(async (event) => {
       // remove organization from project's organizations
       openSourceProjectWithOrganizations.organizations =
         openSourceProjectWithOrganizations.organizations.filter(
-          (org) => org.id !== id
+          (org) => org.id !== validatedBody.orgId
         );
       await openSourceProjectWithOrganizations.save();
       return {
@@ -191,24 +187,18 @@ export const getById = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const listByOrg = wrapHandler(async (event) => {
-  if (!event.body) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'orgId in request body is required' })
-    };
-  }
-  const { orgId } = JSON.parse(event.body);
+  const validatedBody = await validateBody(nonCreateRequest, event.body);
   // check permissions
   if (
-    !orgId ||
+    !validatedBody.orgId ||
     (!isGlobalViewAdmin(event) &&
       !isGlobalWriteAdmin(event) &&
-      !getOrgMemberships(event).includes(orgId))
+      !getOrgMemberships(event).includes(validatedBody.orgId))
   )
     return Unauthorized;
   await connectToDatabase();
   const organization = await Organization.findOne({
-    where: { id: orgId },
+    where: { id: validatedBody.orgId },
     relations: ['openSourceProjects']
   });
   if (organization) {
@@ -223,7 +213,7 @@ export const listByOrg = wrapHandler(async (event) => {
 /**
  * @swagger
  *
- * /project_upsert/org/{orgId}:
+ * /projects:
  *  create:
  *    description: Create a new open source project without an organization if it doesn't already exist and add it to a given organization.
  *    tags:
@@ -296,6 +286,12 @@ class creationRequest {
   @IsNotEmpty()
   hipcheckResults: object;
 
+  @IsString()
+  @IsNotEmpty()
+  orgId: string;
+}
+
+class nonCreateRequest {
   @IsString()
   @IsNotEmpty()
   orgId: string;

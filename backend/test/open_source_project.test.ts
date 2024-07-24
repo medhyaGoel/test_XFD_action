@@ -210,7 +210,7 @@ describe('projects', () => {
             userType: UserType.GLOBAL_ADMIN
           })
         )
-        .send({ id: organization.id })
+        .send({ orgId: organization.id })
         .expect(200);
       // Verify the project no longer exists
       const deletedProject = await OpenSourceProject.findOne({
@@ -256,7 +256,7 @@ describe('projects', () => {
             userType: UserType.GLOBAL_ADMIN
           })
         )
-        .send({ id: organization1.id })
+        .send({ orgId: organization1.id })
         .expect(200);
       const existingProject = await OpenSourceProject.findOne({
         where: { id: openSourceProject.id },
@@ -296,7 +296,7 @@ describe('projects', () => {
             roles: [{ org: organization.id, role: 'user' }]
           })
         )
-        .send({ id: organization.id })
+        .send({ orgId: organization.id })
         .expect(200);
       // Verify the response
       const deletedProject = await OpenSourceProject.findOne({
@@ -336,7 +336,7 @@ describe('projects', () => {
             roles: [{ org: organization2.id, role: 'user' }]
           })
         )
-        .send({ id: organization1.id })
+        .send({ orgId: organization1.id })
         .expect(403); // Expecting a 403 Forbidden for unauthorized access
     });
     it('delete by globalView should fail', async () => {
@@ -372,7 +372,7 @@ describe('projects', () => {
             userType: UserType.GLOBAL_VIEW
           })
         )
-        .send({ id: organization.id })
+        .send({ orgId: organization.id })
         .expect(403);
     });
   });
