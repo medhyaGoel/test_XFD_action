@@ -162,7 +162,10 @@ export class Organization extends BaseEntity {
 
   @ManyToMany(
     () => OpenSourceProject,
-    (openSourceProject) => openSourceProject.organizations
+    (openSourceProject) => openSourceProject.organizations,
+    {
+      cascade: true
+    }
   )
   @JoinTable()
   openSourceProjects: OpenSourceProject[];
