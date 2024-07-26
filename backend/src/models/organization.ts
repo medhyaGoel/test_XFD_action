@@ -8,11 +8,12 @@ import {
   BaseEntity,
   OneToMany,
   ManyToMany,
-  ManyToOne
+  ManyToOne,
+  JoinTable
 } from 'typeorm';
 import { Domain, Role, Scan, ScanTask, OrganizationTag } from '.';
 import { User } from './user';
-import { OpenSourceProject } from './open-source-project';
+import { OpenSourceProject } from './open_source_project';
 
 export interface PendingDomain {
   name: string;
@@ -159,7 +160,13 @@ export class Organization extends BaseEntity {
   })
   type: string;
 
-  @ManyToMany(() => OpenSourceProject, (openSourceProject) => openSourceProject.organizations)
+  @ManyToMany(
+    () => OpenSourceProject,
+    (openSourceProject) => openSourceProject.organizations,
+    {
+      cascade: true
+    }
+  )
+  @JoinTable()
   openSourceProjects: OpenSourceProject[];
-
 }
