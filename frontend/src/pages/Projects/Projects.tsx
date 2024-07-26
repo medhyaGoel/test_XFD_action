@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Subnav } from 'components';
 import { useAuthContext } from 'context';
-import { OSSProject } from 'types/oss';
+import { project } from 'types/oss';
 import { Box, Stack } from '@mui/system';
 import { Alert, Button, IconButton, Paper, TextField, MenuItem } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -12,14 +12,36 @@ import { differenceInCalendarDays, parseISO } from 'date-fns';
 
 const PAGE_SIZE = 15;
 
-const OSS: React.FC = () => {
-  const { showAllOrganizations } = useAuthContext();
-  const [ossProjects, setOSSProjects] = useState<OSSProject[]>([]);
+const Projects: React.FC = () => {
+  const { currentOrganization, apiPost, apiPut, showAllOrganizations } =
+  useAuthContext();
+  const [projects, setProjects] = useState<project[]>([]);
   const [totalResults, setTotalResults] = useState(0);
   const history = useHistory();
 
   useEffect(() => {
-    const fetchOSSProjects = async () => {
+    /*
+    const updateProject = useCallback(
+      async (index: number, body: { [key: string]: string }) => {
+        try {
+          const res = await apiPut<project>(
+            '/project/' + projects[index].id,
+            {
+              body: body
+            }
+          );
+          const projCopy = [...projects];
+          projCopy[index] = res; // Should we be able to change all features of project from here?
+          setProjects(projCopy);
+        } catch (e) {
+          console.error(e);
+        }
+      },
+      [projects, apiPut, setProjects]
+    );
+    */
+
+    const fetchProjects = async () => {
       // Fetch projects from  API and update the state
       // Dummy data for illustration
       const projects = [
@@ -33,14 +55,14 @@ const OSS: React.FC = () => {
           hipcheck: '12',
         },
       ];
-      setOSSProjects(projects);
+      setProjects(projects);
       setTotalResults(projects.length); // assuming the API returns an array
     };
 
-    fetchOSSProjects();
+    fetchProjects();
   }, [showAllOrganizations]);
 
-  const ossProjectRows = ossProjects.map((project: OSSProject) => ({
+  const projectRows = projects.map((project: project) => ({
     id: project.id,
     name: project.name,
     description: project.description,
@@ -56,7 +78,7 @@ const OSS: React.FC = () => {
     hipcheck: project.hipcheck,
   }));
 
-  const ossProjectCols: GridColDef[] = [
+  const projectCols: GridColDef[] = [
     { field: 'name', headerName: 'Name', minWidth: 100, flex: 1.5 },
     { field: 'description', headerName: 'Description', minWidth: 150, flex: 3 },
     { field: 'updatedAt', headerName: 'Updated At', minWidth: 100, flex: 1 },
@@ -74,7 +96,7 @@ const OSS: React.FC = () => {
             aria-label={`View details for ${cellValues.row.name}`}
             tabIndex={cellValues.tabIndex}
             color="primary"
-            onClick={() => history.push('/inventory/oss/' + cellValues.row.id)}
+            onClick={() => history.push('/inventory/project/' + cellValues.row.id)}
           >
             <OpenInNewIcon />
           </IconButton>
@@ -83,8 +105,8 @@ const OSS: React.FC = () => {
     },
   ];
 
-  const resetOSSProjects = () => {
-    setOSSProjects([]);
+  const resetProjects = () => {
+    setProjects([]);
   };
 
   return (
@@ -101,13 +123,13 @@ const OSS: React.FC = () => {
       <br></br>
 
       <Box mb={3} mt={3} display="flex" justifyContent="center">
-        {ossProjectRows.length === 0 ? (
+        {projectRows.length === 0 ? (
           <Stack direction="row" spacing={2}>
             <Paper elevation={2}>
               <Alert severity="warning"> Unable to load OSS projects.</Alert>
             </Paper>
             <Button
-              onClick={resetOSSProjects}
+              onClick={resetProjects}
               variant="contained"
               color="primary"
               sx={{ width: 'fit-content' }}
@@ -118,9 +140,9 @@ const OSS: React.FC = () => {
         ) : (
           <Paper elevation={2} sx={{ width: '90%' }}>
             <DataGrid
-              rows={ossProjectRows}
+              rows={projectRows}
               rowCount={totalResults}
-              columns={ossProjectCols}
+              columns={projectCols}
               slots={{ toolbar: CustomToolbar }}
             />
           </Paper>
@@ -132,7 +154,7 @@ const OSS: React.FC = () => {
         aria-label="Create new project"
         color="primary"
         variant="contained"
-        onClick={() => history.push('/inventory/oss/create-new')}
+        onClick={() => history.push('/inventory/create-project')}
         >
         Create new project
         </Button>
@@ -142,4 +164,4 @@ const OSS: React.FC = () => {
   );
 };
 
-export default OSS;
+export default Projects;

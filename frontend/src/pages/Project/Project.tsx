@@ -1,9 +1,8 @@
-// src/pages/OSSCreate.tsx
 
 import React from 'react';
 import { Box, TextField, Button, Paper } from '@mui/material';
 
-const OSSCreate: React.FC = () => {
+export const Project: React.FC = () => {
   const handleSubmit = () => {
     // form submission logic
   };
@@ -16,5 +15,3 @@ const OSSCreate: React.FC = () => {
     </Box>
   );
 };
-
-export default OSSCreate;

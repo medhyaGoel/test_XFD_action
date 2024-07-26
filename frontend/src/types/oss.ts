@@ -1,4 +1,4 @@
-export interface OSSProject {
+export interface project {
     id: string;
     name: string;
     description: string;

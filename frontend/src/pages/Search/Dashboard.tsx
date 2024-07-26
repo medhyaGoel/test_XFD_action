@@ -182,7 +182,7 @@ export const DashboardUI: React.FC<ContextType & { location: any }> = (
             { title: 'Search Results', path: '/inventory', exact: true },
             { title: 'All Domains', path: '/inventory/domains' },
             { title: 'All Vulnerabilities', path: '/inventory/vulnerabilities' },
-            { title: 'All OSS Projects', path: '/inventory/oss-projects' }
+            { title: 'All OSS Projects', path: '/inventory/projects' }
           ]}
           styles={{
             paddingLeft: '0%'

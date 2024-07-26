@@ -27,7 +27,9 @@ import {
   Risk,
   Organization,
   Organizations,
-  OSS,
+  Projects,
+  Project,
+  ProjectCreate,
   SearchPage,
   Settings,
   TermsOfUse,
@@ -147,8 +149,18 @@ const App: React.FC = () => (
                     permissions={['globalView', 'regionalAdmin', 'standard']}
                   />
                   <RouteGuard
-                    path="/inventory/oss-projects"
-                    component={OSS}
+                    path="/inventory/projects"
+                    component={Projects}
+                    permissions={['globalView', 'regionalAdmin', 'standard']}
+                  />
+                  <RouteGuard
+                    path="/inventory/create-project"
+                    component={ProjectCreate}
+                    permissions={['globalView', 'regionalAdmin', 'standard']}
+                  />
+                  <RouteGuard
+                    path="/inventory/project/:projectId"
+                    component={Project}
                     permissions={['globalView', 'regionalAdmin', 'standard']}
                   />
                   <RouteGuard
