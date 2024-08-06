@@ -1,90 +1,276 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Subnav } from 'components';
+import { Query } from 'types';
 import { useAuthContext } from 'context';
-import { project } from 'types/oss';
+import { Project } from 'types/project';
 import { Box, Stack } from '@mui/system';
-import { Alert, Button, IconButton, Paper, TextField, MenuItem } from '@mui/material';
+import { Alert, Button, Icon, Menu, IconButton, Paper, TextField, MenuItem } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbarContainer } from '@mui/x-data-grid';
 import CustomToolbar from 'components/DataGrid/CustomToolbar';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
+import { useProjectApi } from 'hooks/useProjectApi'; 
+import { Organization } from 'types'; 
+import { ProjectCreate } from "../ProjectCreate/index"; // Adjust the import path as needed
+import { ProjectFormData } from 'pages/ProjectCreate/ProjectCreate';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const PAGE_SIZE = 15;
 
 const Projects: React.FC = () => {
-  const { currentOrganization, apiPost, apiPut, showAllOrganizations } =
+  const { currentOrganization, apiPost, apiGet, apiPut, showAllOrganizations } =
   useAuthContext();
-  const [projects, setProjects] = useState<project[]>([]);
+  const { fetchProjectsByOrg, createProject, error } = useProjectApi();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [initialProjects, setInitialProjects] = useState<Project[]>([]);
   const [totalResults, setTotalResults] = useState(0);
-  const history = useHistory();
+  const history = useHistory(); 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [anchorEls, setAnchorEls] = useState<{ [key: string]: HTMLElement | null }>({});
+  const [projectsLoaded, setProjectsLoaded] = useState(false);
 
-  useEffect(() => {
-    /*
-    const updateProject = useCallback(
-      async (index: number, body: { [key: string]: string }) => {
-        try {
-          const res = await apiPut<project>(
-            '/project/' + projects[index].id,
-            {
-              body: body
-            }
-          );
-          const projCopy = [...projects];
-          projCopy[index] = res; // Should we be able to change all features of project from here?
-          setProjects(projCopy);
-        } catch (e) {
-          console.error(e);
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
+
+  // Handle submit form for creating new Project.
+  // NOTE: The form allows a user to associate a new project with multiple
+  // organizations. These orgNames are passed in an array to the ProjectForm Data
+  // object. However, in this version, the project is only associated with the first 
+  // organization in the list. 
+  const handleFormSubmit = async (data: ProjectFormData) => {
+    // console.log('Form data submitted:', data);
+    const orgs: Organization[] = [];
+    try {
+      for (const name of data.orgNames) {
+        // Get organizations objects from user-submitted organization names. 
+        const matchedOrg = organizations.find(org => org.name === name);
+        if (matchedOrg) {
+          orgs.push(matchedOrg);
+        } else {
+          setErrorMessage('Entered invalid organization name.');
+          handleCloseModal(); 
+          return; 
         }
-      },
-      [projects, apiPut, setProjects]
-    );
-    */
+        }
+  
+        // API call
+        if (data.url) {
+          await createProject(data.url, orgs);
+          handleCloseModal(); 
+          return; 
+        } else {
+          setErrorMessage('Please enter a valid URL.');
+          handleCloseModal();
+          return;
+        }
+      }
+     catch (e: any) {
+      setErrorMessage(error); 
+      handleCloseModal();
+      return;
+    }
+  };
 
-    const fetchProjects = async () => {
-      // Fetch projects from  API and update the state
-      // Dummy data for illustration
-      const projects = [
-        {
-          id: '1',
-          name: 'Project A',
-          description: 'Description A',
-          updatedAt: '2022-07-01',
-          createdAt: '2021-07-01',
-          status: 'Active',
-          hipcheck: '12',
-        },
-      ];
-      setProjects(projects);
-      setTotalResults(projects.length); // assuming the API returns an array
-    };
+  // Fetch all organizations.
+  const fetchOrganizations = useCallback(async () => {
+    setErrorMessage(null); 
+    try {
+      const rows = await apiGet<Organization[]>('/v2/organizations/');
+      // console.log('Fetched Organizations:', rows); // DEBUG
+      setOrganizations(rows);
+    } catch (e : any) {
+      if (e.response && e.response.status === 404) {
+        setErrorMessage(`Unable to load organizations.`);
+      }
+    }
+  }, [apiGet]);
 
-    fetchProjects();
-  }, [showAllOrganizations]);
+  // Fetch all projects.
+  const loadProjects = useCallback(async () => {
+    setErrorMessage(null);
+    try {
+      const allProjects: Project[] = [];
+      // if (currentOrganization && (currentOrganization.id != '9d33744f-50fd-4d14-a961-4b3edfb8f2a2')) {
+      //   // If currentOrganization is specified, fetch projects for that organization.
+      //   const orgProjects = await fetchProjectsByOrg(currentOrganization.id);
+      //   if (orgProjects) {
+      //     // Find the organization that matches currentOrganization.id
+      //     const matchedOrg = organizations.find(org => org.id === currentOrganization.id);
+      //     if (matchedOrg) {
+      //       if (orgProjects) {
+      //         for (const orgProject of orgProjects) {
+      //           const existingProjectIndex = allProjects.findIndex(p => p.id === orgProject.id);
+            
+      //           if (existingProjectIndex !== -1) {
+      //             // Project already exists in allProjects, add the organization to the project's organizations list
+      //             allProjects[existingProjectIndex].organizations.push(matchedOrg);
+      //           } else {
+      //             // Project does not exist in allProjects, append the new project with the organization
+      //             allProjects.push({
+      //               ...orgProject,
+      //               organizations: [...(orgProject.organizations || []), matchedOrg],
+      //             });
+      //           }
+      //         }
+      //       }
+      //     } else {
+      //       console.error('Current organization not found in organizations list.');
+      //     }
+      //   }
+      // }
+      // else {
+        // Fetch projects for all organizations. 
+        if (!organizations || organizations.length === 0) {
+          setErrorMessage('No organizations available');
+          return;
+        }
+        for (const org of organizations) {
+          const orgProjects = await fetchProjectsByOrg(org.id);
+          if (orgProjects) {
+            for (const orgProject of orgProjects) {
+              const existingProjectIndex = allProjects.findIndex(p => p.id === orgProject.id);
+              if (existingProjectIndex !== -1) {
+                // Project already exists in allProjects, add the organization to the project's organizations list
+                allProjects[existingProjectIndex].organizations.push(org);
+              } else {
+                // Project does not exist in allProjects, append the new project with the organization
+                allProjects.push({
+                  ...orgProject,
+                  organizations: [...(orgProject.organizations || []), org],
+                });
+              }
+            }
+          }
+        }
+      // }
 
-  const projectRows = projects.map((project: project) => ({
+      setInitialProjects(allProjects);
+      setTotalResults(allProjects.length);
+      setErrorMessage(null);
+      setProjectsLoaded(true);
+    } catch (e: any) {
+      if (!e.message.includes('not found')) {
+        setErrorMessage('An error occurred while loading projects');
+      }
+    }
+  }, [fetchProjectsByOrg, organizations, currentOrganization]);
+
+  const filter = useCallback(() => {
+    // console.log('original Projects:', initialProjects); 
+    if (currentOrganization && (currentOrganization.id != '9d33744f-50fd-4d14-a961-4b3edfb8f2a2')) {
+      console.log("current organization ID: ", currentOrganization.id); 
+      const filteredProjects = initialProjects.filter((project) =>
+        project.organizations.some((org) => org.id === currentOrganization.id)
+      );
+      setProjects(filteredProjects);
+      // console.log('Filtered Projects:', filteredProjects);
+    } else {
+      setProjects(initialProjects); 
+    }
+  }, [currentOrganization, initialProjects]);
+
+  // Fetch organizations on mount
+  useEffect(() => {
+    fetchOrganizations();
+  }, []);
+
+  // Fetch projects once organizations are loaded
+  useEffect(() => {
+    loadProjects();
+  }, [organizations]);
+
+  // Filter projects if currentOrganization changes.
+  useEffect(() => {
+    if (projectsLoaded) {
+      console.log("current organization changed to: ", currentOrganization); 
+      filter();
+    }
+  }, [initialProjects, currentOrganization, filter]);
+
+  // Debugging
+  // useEffect(() => {
+  //   console.log('Projects state:', projects);
+  // }, [projects]);
+  // useEffect(() => {
+  //   console.log('Initial Projects state:', initialProjects);
+  // }, [initialProjects]);
+
+  // Handle retry button. 
+  const handleRetry = async () => {
+    setErrorMessage(null); 
+    setLoading(true); 
+    await loadProjects(); 
+    setLoading(false); 
+  };
+
+  // Function to handle the click event to show the dropdown
+  const handleClick = (event: React.MouseEvent<HTMLElement>, projectId: string) => {
+    setAnchorEls((prevState) => ({ ...prevState, [projectId]: event.currentTarget }));
+  };
+  
+  const handleClose = (projectId: string) => {
+    setAnchorEls((prevState) => ({ ...prevState, [projectId]: null }));
+  };
+
+   // Code for new table
+   const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: PAGE_SIZE,
+    pageCount: 0,
+    sort: [],
+    filters: []
+  });
+ 
+  const projectRows = projects.map((project) => ({
     id: project.id,
+    url: project.url,
     name: project.name,
-    description: project.description,
-    updatedAt: `${differenceInCalendarDays(
-      new Date(),
-      parseISO(project.updatedAt)
-    )} days ago`,
-    createdAt: `${differenceInCalendarDays(
-      new Date(),
-      parseISO(project.createdAt)
-    )} days ago`,
-    status: project.status,
+    updatedAt: `${differenceInCalendarDays(new Date(), project.updatedAt)} days ago`,
+    createdAt: `${differenceInCalendarDays(new Date(), project.createdAt)} days ago`,
     hipcheck: project.hipcheck,
+    organizations: (
+      <div>
+        <Button
+          aria-controls={`simple-menu-${project.id}`}
+          aria-haspopup="true"
+          onClick={(event) => handleClick(event, project.id)}
+          endIcon={<ExpandMoreIcon />}
+        >
+          See orgs
+        </Button>
+        <Menu
+          id={`simple-menu-${project.id}`}
+          anchorEl={anchorEls[project.id]}
+          keepMounted
+          open={Boolean(anchorEls[project.id])}
+          onClose={() => handleClose(project.id)}
+        >
+          {project.organizations && project.organizations.length > 0 ? (
+            project.organizations.map((org) => (
+              <MenuItem key={org.id} onClick={() => handleClose(project.id)}>
+                {org.name}
+              </MenuItem>
+            ))
+          ) : (
+            <MenuItem onClick={() => handleClose(project.id)}>No organization available</MenuItem>
+          )}
+        </Menu>
+      </div>
+    ),
   }));
 
   const projectCols: GridColDef[] = [
-    { field: 'name', headerName: 'Name', minWidth: 100, flex: 1.5 },
-    { field: 'description', headerName: 'Description', minWidth: 150, flex: 3 },
-    { field: 'updatedAt', headerName: 'Updated At', minWidth: 100, flex: 1 },
-    { field: 'createdAt', headerName: 'Created At', minWidth: 100, flex: 1 },
-    { field: 'status', headerName: 'Status', minWidth: 100, flex: 1 },
+    { field: 'id', headerName: 'ID', minWidth: 100, flex: 1.5 },
+    { field: 'url', headerName: 'URL', minWidth: 100, flex: 3 },
+    { field: 'name', headerName: 'Name', minWidth: 100, flex: 1 },
+    { field: 'createdAt', headerName: 'Created At', minWidth: 75, flex: 1 },
+    { field: 'updatedAt', headerName: 'Updated At', minWidth: 75, flex: 1 },
     { field: 'hipcheck', headerName: 'Hipcheck Score', minWidth: 100, flex: 1},
+    { field: 'organizations', headerName: 'Organizations', width: 100, renderCell: (params) => params.value },
     {
       field: 'view',
       headerName: 'Details',
@@ -105,10 +291,6 @@ const Projects: React.FC = () => {
     },
   ];
 
-  const resetProjects = () => {
-    setProjects([]);
-  };
-
   return (
     <div>
       <Subnav
@@ -116,23 +298,25 @@ const Projects: React.FC = () => {
           { title: 'Search Results', path: '/inventory', exact: true },
           { title: 'All Domains', path: '/inventory/domains' },
           { title: 'All Vulnerabilities', path: '/inventory/vulnerabilities' },
-          { title: 'All OSS Projects', path: '/inventory/oss-projects' },
+          { title: 'All OSS Projects', path: '/inventory/projects' },
         ]}
       ></Subnav>
 
       <br></br>
+      
 
       <Box mb={3} mt={3} display="flex" justifyContent="center">
-        {projectRows.length === 0 ? (
+        {loading ? (
+          <Alert severity="info">Loading...</Alert>
+        ) : error ? (
           <Stack direction="row" spacing={2}>
             <Paper elevation={2}>
-              <Alert severity="warning"> Unable to load OSS projects.</Alert>
+              <Alert severity="error">{error}</Alert>
             </Paper>
             <Button
-              onClick={resetProjects}
+              onClick={handleRetry} 
               variant="contained"
               color="primary"
-              sx={{ width: 'fit-content' }}
             >
               Retry
             </Button>
@@ -143,25 +327,40 @@ const Projects: React.FC = () => {
               rows={projectRows}
               rowCount={totalResults}
               columns={projectCols}
-              slots={{ toolbar: CustomToolbar }}
+              paginationMode="server"
+              pageSizeOptions={[15, 30, 50, 100]}
             />
           </Paper>
         )}
       </Box>
+
+      {(errorMessage) && (
+      <Box mb={3} mt={3} display="flex" justifyContent="center">
+        <Alert severity="error">
+          {errorMessage || 'An unknown error occurred.'}
+        </Alert>
+      </Box>
+    )}
 
       <Box sx={{width: '95%', display: 'flex', justifyContent: 'flex-end' }}>
         <Button
         aria-label="Create new project"
         color="primary"
         variant="contained"
-        onClick={() => history.push('/inventory/create-project')}
+        onClick={handleOpenModal}
         >
         Create new project
         </Button>
+        <ProjectCreate
+        open={modalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleFormSubmit}
+      />
       </Box>
 
+      
     </div>
   );
-};
+}; 
 
 export default Projects;

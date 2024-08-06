@@ -154,11 +154,6 @@ const App: React.FC = () => (
                     permissions={['globalView', 'regionalAdmin', 'standard']}
                   />
                   <RouteGuard
-                    path="/inventory/create-project"
-                    component={ProjectCreate}
-                    permissions={['globalView', 'regionalAdmin', 'standard']}
-                  />
-                  <RouteGuard
                     path="/inventory/project/:projectId"
                     component={Project}
                     permissions={['globalView', 'regionalAdmin', 'standard']}

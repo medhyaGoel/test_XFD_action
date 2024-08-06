@@ -140,27 +140,39 @@ export const getById = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const listByOrg = wrapHandler(async (event) => {
-  const validatedBody = await validateBody(NonCreateRequest, event.body);
-  // check permissions
+  const orgId = event.query?.orgId;
+  
+  if (!orgId) {
+    return { 
+      statusCode: 400,
+      body: JSON.stringify({ message: 'orgId parameter is required' })
+    };
+  }
+
+  // check permissions 
   if (
-    !validatedBody.orgId ||
-    (!isGlobalViewAdmin(event) &&
-      !isGlobalWriteAdmin(event) &&
-      !getOrgMemberships(event).includes(validatedBody.orgId))
-  )
+    !isGlobalViewAdmin(event) &&
+    !isGlobalWriteAdmin(event) &&
+    !getOrgMemberships(event).includes(orgId)
+  ) {
     return Unauthorized;
+  }
+  
   await connectToDatabase();
   const organization = await Organization.findOne({
-    where: { id: validatedBody.orgId },
+    where: { id: orgId },
     relations: ['openSourceProjects']
   });
+
   if (organization) {
-    return {
+    return { 
       statusCode: 200,
       body: JSON.stringify(organization.openSourceProjects)
     };
   }
+
   return NotFound;
+  
 });
 
 /**
@@ -173,15 +185,16 @@ export const listByOrg = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const create_proj = wrapHandler(async (event) => {
+  console.log("entered create_proj"); 
   const validatedBody = await validateBody(CreationRequest, event.body);
-
   // check permissions
   if (
     !validatedBody.orgId ||
     (!isGlobalWriteAdmin(event) &&
       !getOrgMemberships(event).includes(validatedBody.orgId))
-  )
+  ) {
     return Unauthorized;
+  }
 
   // const body = await validateBody(OpenSourceProject, event.body);
   await connectToDatabase();
