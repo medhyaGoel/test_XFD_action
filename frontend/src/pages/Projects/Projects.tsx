@@ -37,10 +37,6 @@ const Projects: React.FC = () => {
   const handleCloseModal = () => setModalOpen(false);
 
   // Handle submit form for creating new Project.
-  // NOTE: The form allows a user to associate a new project with multiple
-  // organizations. These orgNames are passed in an array to the ProjectForm Data
-  // object. However, in this version, the project is only associated with the first 
-  // organization in the list. 
   const handleFormSubmit = async (data: ProjectFormData) => {
     // console.log('Form data submitted:', data);
     const orgs: Organization[] = [];
@@ -94,36 +90,6 @@ const Projects: React.FC = () => {
     setErrorMessage(null);
     try {
       const allProjects: Project[] = [];
-      // if (currentOrganization && (currentOrganization.id != '9d33744f-50fd-4d14-a961-4b3edfb8f2a2')) {
-      //   // If currentOrganization is specified, fetch projects for that organization.
-      //   const orgProjects = await fetchProjectsByOrg(currentOrganization.id);
-      //   if (orgProjects) {
-      //     // Find the organization that matches currentOrganization.id
-      //     const matchedOrg = organizations.find(org => org.id === currentOrganization.id);
-      //     if (matchedOrg) {
-      //       if (orgProjects) {
-      //         for (const orgProject of orgProjects) {
-      //           const existingProjectIndex = allProjects.findIndex(p => p.id === orgProject.id);
-            
-      //           if (existingProjectIndex !== -1) {
-      //             // Project already exists in allProjects, add the organization to the project's organizations list
-      //             allProjects[existingProjectIndex].organizations.push(matchedOrg);
-      //           } else {
-      //             // Project does not exist in allProjects, append the new project with the organization
-      //             allProjects.push({
-      //               ...orgProject,
-      //               organizations: [...(orgProject.organizations || []), matchedOrg],
-      //             });
-      //           }
-      //         }
-      //       }
-      //     } else {
-      //       console.error('Current organization not found in organizations list.');
-      //     }
-      //   }
-      // }
-      // else {
-        // Fetch projects for all organizations. 
         if (!organizations || organizations.length === 0) {
           setErrorMessage('No organizations available');
           return;
@@ -190,8 +156,7 @@ const Projects: React.FC = () => {
       filter();
     }
   }, [initialProjects, currentOrganization, filter]);
-
-  // Debugging
+  
   // useEffect(() => {
   //   console.log('Projects state:', projects);
   // }, [projects]);
