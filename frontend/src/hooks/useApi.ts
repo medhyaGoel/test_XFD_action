@@ -49,8 +49,6 @@ export const useApi = (onError?: OnError) => {
           // });
           showLoading && setRequestCount((cnt) => cnt + 1);
           const options = await prepareInit(rest);
-          // console.log(path);
-          // console.log(options);
           const result = await method('crossfeed', path, options);
           showLoading && setRequestCount((cnt) => cnt - 1);
           return result as T;

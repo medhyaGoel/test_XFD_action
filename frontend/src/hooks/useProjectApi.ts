@@ -30,7 +30,6 @@ export const useProjectApi = () => {
   const createProject = useCallback(async (url : string, organizations: Organization[] ) => {
     setLoading(true);
     // setError(null);
-    // console.log(url, name, organizations); 
 
     try {
         // Call the API for each organization the project belongs to.
@@ -44,7 +43,6 @@ export const useProjectApi = () => {
               }
             });
             createdProjects.push(response); 
-            // console.log("Created Project belonging to ", org.name); 
         }
       return createdProjects;
     } catch (err: any) {

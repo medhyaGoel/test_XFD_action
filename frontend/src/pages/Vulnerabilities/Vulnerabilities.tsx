@@ -439,7 +439,7 @@ export const Vulnerabilities: React.FC<{ groupBy?: string }> = ({
             { title: 'Search Results', path: '/inventory', exact: true },
             { title: 'All Domains', path: '/inventory/domains' },
             { title: 'All Vulnerabilities', path: '/inventory/vulnerabilities' },
-            { title: 'All OSS Projects', path: '/inventory/projects' }
+            { title: 'OSS Projects', path: '/inventory/projects' }
           ]}
         ></Subnav>
         <br></br>

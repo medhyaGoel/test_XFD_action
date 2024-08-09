@@ -6,6 +6,6 @@ export interface Project {
     name: string;
     createdAt: Date;
     updatedAt: Date;
-    hipcheck: string; // This should be an object. 
+    hipcheck: string; // This should be a json object. 
     organizations: Organization[];
   }

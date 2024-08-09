@@ -38,7 +38,6 @@ const Projects: React.FC = () => {
 
   // Handle submit form for creating new Project.
   const handleFormSubmit = async (data: ProjectFormData) => {
-    // console.log('Form data submitted:', data);
     const orgs: Organization[] = [];
     try {
       for (const name of data.orgNames) {
@@ -76,7 +75,6 @@ const Projects: React.FC = () => {
     setErrorMessage(null); 
     try {
       const rows = await apiGet<Organization[]>('/v2/organizations/');
-      // console.log('Fetched Organizations:', rows); // DEBUG
       setOrganizations(rows);
     } catch (e : any) {
       if (e.response && e.response.status === 404) {
@@ -126,14 +124,10 @@ const Projects: React.FC = () => {
   }, [fetchProjectsByOrg, organizations, currentOrganization]);
 
   const filter = useCallback(() => {
-    // console.log('original Projects:', initialProjects); 
-    if (currentOrganization && (currentOrganization.id != '9d33744f-50fd-4d14-a961-4b3edfb8f2a2')) {
-      console.log("current organization ID: ", currentOrganization.id); 
       const filteredProjects = initialProjects.filter((project) =>
         project.organizations.some((org) => org.id === currentOrganization.id)
       );
       setProjects(filteredProjects);
-      // console.log('Filtered Projects:', filteredProjects);
     } else {
       setProjects(initialProjects); 
     }
@@ -152,18 +146,10 @@ const Projects: React.FC = () => {
   // Filter projects if currentOrganization changes.
   useEffect(() => {
     if (projectsLoaded) {
-      console.log("current organization changed to: ", currentOrganization); 
       filter();
     }
   }, [initialProjects, currentOrganization, filter]);
   
-  // useEffect(() => {
-  //   console.log('Projects state:', projects);
-  // }, [projects]);
-  // useEffect(() => {
-  //   console.log('Initial Projects state:', initialProjects);
-  // }, [initialProjects]);
-
   // Handle retry button. 
   const handleRetry = async () => {
     setErrorMessage(null); 
@@ -263,7 +249,7 @@ const Projects: React.FC = () => {
           { title: 'Search Results', path: '/inventory', exact: true },
           { title: 'All Domains', path: '/inventory/domains' },
           { title: 'All Vulnerabilities', path: '/inventory/vulnerabilities' },
-          { title: 'All OSS Projects', path: '/inventory/projects' },
+          { title: 'OSS Projects', path: '/inventory/projects' },
         ]}
       ></Subnav>
 
