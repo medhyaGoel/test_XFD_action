@@ -6,11 +6,22 @@ import { useAuthContext } from 'context';
 import { Project } from 'types/project';
 import CustomToolbar from 'components/DataGrid/CustomToolbar';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
-import { useProjectApi } from 'hooks/useProjectApi'; 
-import { Organization } from 'types'; 
+import { useProjectApi } from 'hooks/useProjectApi';
+import { Organization } from 'types';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
-import { Box, Paper, Alert, TextField, IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Alert,
+  TextField,
+  IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
 
 export interface ProjectFormData {
   url: string;
@@ -23,38 +34,41 @@ interface ProjectCreateProps {
   onSubmit: (data: ProjectFormData) => void;
 }
 
-const ProjectCreate: React.FC<ProjectCreateProps> = ({ open, onClose, onSubmit }) => {
+const ProjectCreate: React.FC<ProjectCreateProps> = ({
+  open,
+  onClose,
+  onSubmit,
+}) => {
   const { currentOrganization, apiPost, apiGet, apiPut, showAllOrganizations } =
-  useAuthContext();
+    useAuthContext();
   const [formData, setFormData] = useState<ProjectFormData>({
     url: '',
     orgNames: [''],
   });
-  const [ organizations, setOrganizations] = useState<Organization[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Handle change in user input. 
+  // Handle change in user input.
   const handleChange = (e: ChangeEvent<HTMLInputElement>, index?: number) => {
     const { name, value } = e.target;
     if (name === 'orgName' && index !== undefined) {
       // Update the specific index in the orgNames array
       const newOrgNames = [...formData.orgNames];
       newOrgNames[index] = value;
-       setFormData((prev) => ({
+      setFormData((prev) => ({
         ...prev,
         orgNames: newOrgNames,
-    }));
-    } 
-    else if (name === 'url') {
+      }));
+    } else if (name === 'url') {
       // Handling for URL
       setFormData({
         ...formData,
-        url : value
-      })
+        url: value,
+      });
     }
   };
 
-  // Handling for adding organizations. 
+  // Handling for adding organizations.
   const handleAddOrgName = () => {
     setFormData((prev) => ({
       ...prev,
@@ -62,7 +76,7 @@ const ProjectCreate: React.FC<ProjectCreateProps> = ({ open, onClose, onSubmit }
     }));
   };
 
-  // Handling for removing organizations. 
+  // Handling for removing organizations.
   const handleRemoveOrgName = (index: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -80,9 +94,7 @@ const ProjectCreate: React.FC<ProjectCreateProps> = ({ open, onClose, onSubmit }
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Create New Project</DialogTitle>
       <DialogContent>
-      {errorMessage && (
-          <Alert severity="error">{errorMessage}</Alert>
-        )}
+        {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
         <Box
           component="form"
           sx={{ '& .MuiTextField-root': { m: 1, width: '25ch' } }}
@@ -105,26 +117,26 @@ const ProjectCreate: React.FC<ProjectCreateProps> = ({ open, onClose, onSubmit }
                   name="orgName"
                   label={`Organization ${index + 1}`}
                   value={orgName}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e, index)}
-                  />
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    handleChange(e, index)
+                  }
+                />
                 <IconButton onClick={handleAddOrgName} color="primary">
                   <AddCircleIcon />
                 </IconButton>
                 {formData.orgNames.length > 1 && (
-                  <IconButton onClick={() => handleRemoveOrgName(index)} color="secondary">
+                  <IconButton
+                    onClick={() => handleRemoveOrgName(index)}
+                    color="secondary"
+                  >
                     <RemoveCircleIcon />
                   </IconButton>
                 )}
               </Box>
             ))}
-            <Button
-              variant="contained"
-              type="submit"
-              sx={{ mt: 2 }}
-            >
+            <Button variant="contained" type="submit" sx={{ mt: 2 }}>
               Submit
             </Button>
-
           </Paper>
         </Box>
       </DialogContent>

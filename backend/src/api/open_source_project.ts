@@ -141,15 +141,15 @@ export const getById = wrapHandler(async (event) => {
  */
 export const listByOrg = wrapHandler(async (event) => {
   const orgId = event.query?.orgId;
-  
+
   if (!orgId) {
-    return { 
+    return {
       statusCode: 400,
       body: JSON.stringify({ message: 'orgId parameter is required' })
     };
   }
 
-  // check permissions 
+  // check permissions
   if (
     !isGlobalViewAdmin(event) &&
     !isGlobalWriteAdmin(event) &&
@@ -157,7 +157,7 @@ export const listByOrg = wrapHandler(async (event) => {
   ) {
     return Unauthorized;
   }
-  
+
   await connectToDatabase();
   const organization = await Organization.findOne({
     where: { id: orgId },
@@ -165,14 +165,13 @@ export const listByOrg = wrapHandler(async (event) => {
   });
 
   if (organization) {
-    return { 
+    return {
       statusCode: 200,
       body: JSON.stringify(organization.openSourceProjects)
     };
   }
 
   return NotFound;
-  
 });
 
 /**
@@ -185,7 +184,7 @@ export const listByOrg = wrapHandler(async (event) => {
  *    - Organizations
  */
 export const create_proj = wrapHandler(async (event) => {
-  console.log("entered create_proj"); 
+  console.log('entered create_proj');
   const validatedBody = await validateBody(CreationRequest, event.body);
   // check permissions
   if (
