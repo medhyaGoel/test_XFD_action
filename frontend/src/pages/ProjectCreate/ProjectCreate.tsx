@@ -11,7 +11,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
+  DialogActions
 } from '@mui/material';
 
 export interface ProjectFormData {
@@ -28,11 +28,11 @@ interface ProjectCreateProps {
 const ProjectCreate: React.FC<ProjectCreateProps> = ({
   open,
   onClose,
-  onSubmit,
+  onSubmit
 }) => {
   const [formData, setFormData] = useState<ProjectFormData>({
     url: '',
-    orgNames: [''],
+    orgNames: ['']
   });
   const [errorMessage] = useState<string | null>(null);
 
@@ -45,13 +45,13 @@ const ProjectCreate: React.FC<ProjectCreateProps> = ({
       newOrgNames[index] = value;
       setFormData((prev) => ({
         ...prev,
-        orgNames: newOrgNames,
+        orgNames: newOrgNames
       }));
     } else if (name === 'url') {
       // Handling for URL
       setFormData({
         ...formData,
-        url: value,
+        url: value
       });
     }
   };
@@ -60,7 +60,7 @@ const ProjectCreate: React.FC<ProjectCreateProps> = ({
   const handleAddOrgName = () => {
     setFormData((prev) => ({
       ...prev,
-      orgNames: [...prev.orgNames, ''],
+      orgNames: [...prev.orgNames, '']
     }));
   };
 
@@ -68,7 +68,7 @@ const ProjectCreate: React.FC<ProjectCreateProps> = ({
   const handleRemoveOrgName = (index: number) => {
     setFormData((prev) => ({
       ...prev,
-      orgNames: prev.orgNames.filter((_, i) => i !== index),
+      orgNames: prev.orgNames.filter((_, i) => i !== index)
     }));
   };
 

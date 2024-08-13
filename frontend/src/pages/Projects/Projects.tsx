@@ -10,7 +10,7 @@ import {
   Menu,
   IconButton,
   Paper,
-  MenuItem,
+  MenuItem
 } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -109,7 +109,7 @@ const Projects: React.FC = () => {
               // Project does not exist in allProjects, append the new project with the organization
               allProjects.push({
                 ...orgProject,
-                organizations: [...(orgProject.organizations || []), org],
+                organizations: [...(orgProject.organizations || []), org]
               });
             }
           }
@@ -175,7 +175,7 @@ const Projects: React.FC = () => {
   ) => {
     setAnchorEls((prevState) => ({
       ...prevState,
-      [projectId]: event.currentTarget,
+      [projectId]: event.currentTarget
     }));
   };
 
@@ -229,7 +229,7 @@ const Projects: React.FC = () => {
           )}
         </Menu>
       </div>
-    ),
+    )
   }));
 
   const projectCols: GridColDef[] = [
@@ -243,7 +243,7 @@ const Projects: React.FC = () => {
       field: 'organizations',
       headerName: 'Organizations',
       width: 100,
-      renderCell: (params) => params.value,
+      renderCell: (params) => params.value
     },
     {
       field: 'view',
@@ -263,8 +263,8 @@ const Projects: React.FC = () => {
             <OpenInNewIcon />
           </IconButton>
         );
-      },
-    },
+      }
+    }
   ];
 
   return (
@@ -274,7 +274,7 @@ const Projects: React.FC = () => {
           { title: 'Search Results', path: '/inventory', exact: true },
           { title: 'All Domains', path: '/inventory/domains' },
           { title: 'All Vulnerabilities', path: '/inventory/vulnerabilities' },
-          { title: 'OSS Projects', path: '/inventory/projects' },
+          { title: 'OSS Projects', path: '/inventory/projects' }
         ]}
       ></Subnav>
 

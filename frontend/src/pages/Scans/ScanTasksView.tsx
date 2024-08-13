@@ -19,7 +19,7 @@ import {
   Menu,
   MenuItem,
   Paper,
-  Typography,
+  Typography
 } from '@mui/material';
 import { Box, Stack } from '@mui/system';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -101,16 +101,14 @@ export const ScanTasksView: React.FC = () => {
         Object.assign([], scanTasks, {
           [index]: {
             ...scanTasks[index],
-            status: 'failed',
-          },
+            status: 'failed'
+          }
         })
       );
     } catch (e: any) {
       setErrors({
         global:
-          e.status === 422
-            ? 'Unable to kill scan'
-            : (e.message ?? e.toString()),
+          e.status === 422 ? 'Unable to kill scan' : (e.message ?? e.toString())
       });
       console.log(e);
     }
@@ -129,7 +127,7 @@ export const ScanTasksView: React.FC = () => {
           .reduce(
             (accum, next) => ({
               ...accum,
-              [next.id]: next.value,
+              [next.id]: next.value
             }),
             {}
           );
@@ -147,8 +145,8 @@ export const ScanTasksView: React.FC = () => {
               pageSize: query.pageSize ?? PAGE_SIZE,
               sort: sort[0]?.id ?? 'createdAt',
               order: 'DESC',
-              filters: tableFilters,
-            },
+              filters: tableFilters
+            }
           }
         );
         // if (result.length === 0) return;
@@ -158,7 +156,7 @@ export const ScanTasksView: React.FC = () => {
           ...prev,
           page: query.page - 1,
           pageSize: query.pageSize ?? PAGE_SIZE,
-          pageCount: Math.ceil(count / (query.pageSize ?? PAGE_SIZE)),
+          pageCount: Math.ceil(count / (query.pageSize ?? PAGE_SIZE))
         }));
       } catch (e) {
         console.error(e);
@@ -180,7 +178,7 @@ export const ScanTasksView: React.FC = () => {
     requestedAt: scanTask.requestedAt,
     finishedAt: dateAccessor(scanTask.finishedAt),
     scan: scanTask.scan,
-    fargateTaskArn: scanTask.fargateTaskArn,
+    fargateTaskArn: scanTask.fargateTaskArn
   }));
 
   const scansTasksCols: GridColDef[] = [
@@ -208,15 +206,15 @@ export const ScanTasksView: React.FC = () => {
             <Icon>info</Icon>
           </IconButton>
         );
-      },
-    },
+      }
+    }
   ];
 
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: PAGE_SIZE,
     sort: [],
-    filters: [] as { id: string; value: any }[],
+    filters: [] as { id: string; value: any }[]
   });
 
   useEffect(() => {
@@ -224,7 +222,7 @@ export const ScanTasksView: React.FC = () => {
       page: 1,
       pageSize: PAGE_SIZE,
       sort: paginationModel.sort,
-      filters: paginationModel.filters,
+      filters: paginationModel.filters
     });
   }, [fetchScanTasks, paginationModel.sort, paginationModel.filters]);
 
@@ -248,8 +246,8 @@ export const ScanTasksView: React.FC = () => {
       ...prev,
       filters: [
         ...prev.filters.filter((f) => f.id !== 'name'),
-        { id: 'name', value: name },
-      ],
+        { id: 'name', value: name }
+      ]
     }));
     setAnchorElName(null);
     setSelectedName(name);
@@ -259,8 +257,8 @@ export const ScanTasksView: React.FC = () => {
       ...prev,
       filters: [
         ...prev.filters.filter((f) => f.id !== 'status'),
-        { id: 'status', value: status },
-      ],
+        { id: 'status', value: status }
+      ]
     }));
     setAnchorElStatus(null);
     setSelectedStatus(status);
@@ -283,7 +281,7 @@ export const ScanTasksView: React.FC = () => {
     'hibp',
     'lookingGlass',
     'dnstwist',
-    'rootDomainSync',
+    'rootDomainSync'
   ];
 
   const statusValues = [
@@ -292,7 +290,7 @@ export const ScanTasksView: React.FC = () => {
     'requested',
     'started',
     'finished',
-    'failed',
+    'failed'
   ];
 
   const scanNameDropdown = (
@@ -356,7 +354,7 @@ export const ScanTasksView: React.FC = () => {
       page: 1,
       pageSize: PAGE_SIZE,
       sort: [],
-      filters: [],
+      filters: []
     });
   }, [fetchScanTasks]);
 
@@ -390,8 +388,8 @@ export const ScanTasksView: React.FC = () => {
                 toolbar: {
                   children: [scanNameDropdown, scanStatusDropdown].map(
                     (child, index) => <Box key={index}>{child}</Box>
-                  ),
-                },
+                  )
+                }
               }}
               paginationMode="server"
               paginationModel={paginationModel}
@@ -400,7 +398,7 @@ export const ScanTasksView: React.FC = () => {
                   page: model.page + 1,
                   pageSize: model.pageSize,
                   sort: paginationModel.sort,
-                  filters: paginationModel.filters,
+                  filters: paginationModel.filters
                 });
               }}
               filterMode="server"
@@ -411,8 +409,8 @@ export const ScanTasksView: React.FC = () => {
                   sort: paginationModel.sort,
                   filters: model.items.map((item) => ({
                     id: item.field,
-                    value: item.value,
-                  })),
+                    value: item.value
+                  }))
                 });
               }}
               pageSizeOptions={[15, 30, 50, 100]}
@@ -447,7 +445,7 @@ export const ScanTasksView: React.FC = () => {
                     .env
                     .REACT_APP_FARGATE_LOG_GROUP!}/log-events/worker$252Fmain$252F${
                     (detailsParams?.row?.fargateTaskArn.match('.*/(.*)') || [
-                      '',
+                      ''
                     ])[1]
                   }`}
                 >

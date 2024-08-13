@@ -57,14 +57,14 @@ export const OrganizationList: React.FC<{
             </IconButton>
           </>
         );
-      },
-    },
+      }
+    }
   ];
 
   const onSubmit = async (body: object) => {
     try {
       const org = await apiPost('/organizations/', {
-        body,
+        body
       });
       setOrganizations(organizations.concat(org));
     } catch (e: any) {
@@ -73,7 +73,7 @@ export const OrganizationList: React.FC<{
           e.status === 422
             ? 'Error when submitting organization entry.'
             : (e.message ?? e.toString()),
-        type: 'error',
+        type: 'error'
       });
       console.error(e);
     }
@@ -117,7 +117,7 @@ export const OrganizationList: React.FC<{
             columns={orgCols}
             slots={{ toolbar: CustomToolbar }}
             slotProps={{
-              toolbar: { children: addOrgButton },
+              toolbar: { children: addOrgButton }
             }}
           />
         )}

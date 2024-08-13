@@ -4,7 +4,7 @@ import {
   Route,
   Redirect,
   useHistory,
-  useLocation,
+  useLocation
 } from 'react-router-dom';
 import { useAuthContext } from 'context';
 

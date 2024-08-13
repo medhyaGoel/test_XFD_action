@@ -3,7 +3,7 @@ import {
   createTheme,
   ThemeProvider,
   Theme,
-  StyledEngineProvider,
+  StyledEngineProvider
 } from '@mui/material/styles';
 
 declare module '@mui/material/styles' {
@@ -13,14 +13,14 @@ declare module '@mui/material/styles' {
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#07648D',
+      main: '#07648D'
     },
     secondary: {
-      main: '#28A0CB',
+      main: '#28A0CB'
     },
     background: {
-      default: '#EFF1F5',
-    },
+      default: '#EFF1F5'
+    }
   },
   breakpoints: {
     values: {
@@ -28,16 +28,16 @@ const theme = createTheme({
       sm: 600,
       md: 960,
       lg: 1330,
-      xl: 1920,
-    },
-  },
+      xl: 1920
+    }
+  }
 });
 
 interface CFThemeProviderProps {
   children: React.ReactNode;
 }
 export const CFThemeProvider: React.FC<CFThemeProviderProps> = ({
-  children,
+  children
 }) => {
   return (
     <StyledEngineProvider injectFirst>

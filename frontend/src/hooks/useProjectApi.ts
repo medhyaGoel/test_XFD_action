@@ -45,8 +45,8 @@ export const useProjectApi = () => {
             body: {
               url: url,
               hipcheckResults: {},
-              orgId: org.id,
-            },
+              orgId: org.id
+            }
           });
           createdProjects.push(response);
         }
@@ -75,6 +75,6 @@ export const useProjectApi = () => {
     fetchProjectsByOrg,
     createProject,
     loading,
-    error,
+    error
   };
 };
