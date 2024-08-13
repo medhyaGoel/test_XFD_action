@@ -4,7 +4,7 @@ import { useAuthContext } from 'context';
 import { Organization } from 'types';
 
 export const useProjectApi = () => {
-  const { currentOrganization, apiPost, apiPut, apiGet } = useAuthContext();
+  const { apiPost, apiGet } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

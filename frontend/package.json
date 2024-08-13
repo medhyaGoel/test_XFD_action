@@ -148,8 +148,8 @@
   "scripts": {
     "build": "react-scripts --max_old_space_size=8192 build",
     "eject": "react-scripts eject",
-    "lint": "eslint \"**/*.{js,jsx,json,md}\"", // prettier --check \"**/*.{js,jsx,json,md}\""
-    "lint:fix": "eslint \"src/**/*.{ts,tsx,js,jsx}\" --fix",
+    "lint": "eslint 'src/**/*.{ts,tsx,js,jsx}'",
+    "lint:fix": "eslint 'src/**/*.{ts,tsx,js,jsx}' --fix",
     "start": "react-scripts --max_old_space_size=8192 start",
     "test": "react-scripts test",
     "typecheck": "tsc --noEmit"

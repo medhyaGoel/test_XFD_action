@@ -1,13 +1,4 @@
-import React, { useCallback, useState, useEffect, ChangeEvent } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Subnav } from 'components';
-import { Query } from 'types';
-import { useAuthContext } from 'context';
-import { Project } from 'types/project';
-import CustomToolbar from 'components/DataGrid/CustomToolbar';
-import { differenceInCalendarDays, parseISO } from 'date-fns';
-import { useProjectApi } from 'hooks/useProjectApi';
-import { Organization } from 'types';
+import React, { useState, ChangeEvent } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import {
@@ -39,14 +30,11 @@ const ProjectCreate: React.FC<ProjectCreateProps> = ({
   onClose,
   onSubmit,
 }) => {
-  const { currentOrganization, apiPost, apiGet, apiPut, showAllOrganizations } =
-    useAuthContext();
   const [formData, setFormData] = useState<ProjectFormData>({
     url: '',
     orgNames: [''],
   });
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage] = useState<string | null>(null);
 
   // Handle change in user input.
   const handleChange = (e: ChangeEvent<HTMLInputElement>, index?: number) => {

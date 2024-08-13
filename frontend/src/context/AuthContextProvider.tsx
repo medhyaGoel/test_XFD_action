@@ -122,7 +122,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
 
   useEffect(() => {
     refreshUser();
-  }, []);
+  }, [refreshUser]);
 
   useEffect(() => {
     if (!token) {

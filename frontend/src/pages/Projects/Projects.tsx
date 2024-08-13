@@ -1,40 +1,28 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Subnav } from 'components';
-import { Query } from 'types';
 import { useAuthContext } from 'context';
 import { Project } from 'types/project';
 import { Box, Stack } from '@mui/system';
 import {
   Alert,
   Button,
-  Icon,
   Menu,
   IconButton,
   Paper,
-  TextField,
   MenuItem,
 } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import {
-  DataGrid,
-  GridColDef,
-  GridRenderCellParams,
-  GridToolbarContainer,
-} from '@mui/x-data-grid';
-import CustomToolbar from 'components/DataGrid/CustomToolbar';
-import { differenceInCalendarDays, parseISO } from 'date-fns';
+import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { differenceInCalendarDays } from 'date-fns';
 import { useProjectApi } from 'hooks/useProjectApi';
 import { Organization } from 'types';
 import { ProjectCreate } from '../ProjectCreate/index'; // Adjust the import path as needed
 import { ProjectFormData } from 'pages/ProjectCreate/ProjectCreate';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const PAGE_SIZE = 15;
-
 const Projects: React.FC = () => {
-  const { currentOrganization, apiPost, apiGet, apiPut, showAllOrganizations } =
-    useAuthContext();
+  const { currentOrganization, apiGet } = useAuthContext();
   const { fetchProjectsByOrg, createProject, error } = useProjectApi();
   const [projects, setProjects] = useState<Project[]>([]);
   const [initialProjects, setInitialProjects] = useState<Project[]>([]);
@@ -138,13 +126,13 @@ const Projects: React.FC = () => {
         setErrorMessage('An error occurred while loading projects');
       }
     }
-  }, [fetchProjectsByOrg, organizations, currentOrganization]);
+  }, [fetchProjectsByOrg, organizations]);
 
   const filter = useCallback(() => {
     // currentOrganization might be undefined.
     if (
       currentOrganization &&
-      currentOrganization.id != '9d33744f-50fd-4d14-a961-4b3edfb8f2a2'
+      currentOrganization.id !== '9d33744f-50fd-4d14-a961-4b3edfb8f2a2'
     ) {
       const filteredProjects = initialProjects.filter((project) =>
         project.organizations.some((org) => org.id === currentOrganization.id)
@@ -158,19 +146,19 @@ const Projects: React.FC = () => {
   // Fetch organizations on mount
   useEffect(() => {
     fetchOrganizations();
-  }, []);
+  }, [fetchOrganizations]);
 
   // Fetch projects once organizations are loaded
   useEffect(() => {
     loadProjects();
-  }, [organizations]);
+  }, [loadProjects, organizations]);
 
   // Filter projects if currentOrganization changes.
   useEffect(() => {
     if (projectsLoaded) {
       filter();
     }
-  }, [initialProjects, currentOrganization, filter]);
+  }, [initialProjects, currentOrganization, filter, projectsLoaded]);
 
   // Handle retry button.
   const handleRetry = async () => {
@@ -196,13 +184,13 @@ const Projects: React.FC = () => {
   };
 
   // Code for new table
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: PAGE_SIZE,
-    pageCount: 0,
-    sort: [],
-    filters: [],
-  });
+  // const [paginationModel, setPaginationModel] = useState({
+  //   page: 0,
+  //   pageSize: PAGE_SIZE,
+  //   pageCount: 0,
+  //   sort: [],
+  //   filters: [],
+  // });
 
   const projectRows = projects.map((project) => ({
     id: project.id,

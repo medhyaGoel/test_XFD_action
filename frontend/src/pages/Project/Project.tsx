@@ -1,26 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Link, useParams, useHistory } from 'react-router-dom';
-import { differenceInCalendarDays, parseISO } from 'date-fns';
-import { ChevronLeft, OpenInNew } from '@mui/icons-material';
-import {
-  AppBar,
-  Box,
-  Grid,
-  IconButton,
-  Link as LinkMui,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Toolbar,
-  Typography,
-} from '@mui/material';
-import { tableCellClasses } from '@mui/material/TableCell';
-import { getSeverityColor } from 'pages/Risk/utils';
-import { useAuthContext } from 'context';
+import { Box, Paper } from '@mui/material';
+import React from 'react';
 // import { XpanseSection } from './XpanseSection';
 
 export const Project: React.FC = () => {
