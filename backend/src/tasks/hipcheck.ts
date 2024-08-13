@@ -35,9 +35,18 @@ export const handler = async (commandOptions: CommandOptions) => {
     if (output.error) {
       throw output.error;
     }
-    
-    const result = JSON.parse(output.stdout.toString());
-    hardcodedProject.hipcheckResults = result;
+
+    console.log("JSON String:", output.stdout.toString());
+    const parsedData = ""
+    try {
+      parsedData = JSON.parse(output.stdout.toString());
+      // Proceed with your logic using parsedData
+    } catch (error) {
+      console.error("Failed to parse JSON:", error);
+      // Handle the error or set a fallback value
+    }
+    //const result = JSON.parse(output.stdout.toString());
+    hardcodedProject.hipcheckResults = parsedData;
 
     const projectRepository = getRepository(OpenSourceProject); 
     await projectRepository.save(hardcodedProject);
