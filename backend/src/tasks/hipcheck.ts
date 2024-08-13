@@ -24,9 +24,11 @@ export const handler = async (commandOptions: CommandOptions) => {
   try {
     const args = [
       'check',
-      '--target', 'repo',
-      '--format', 'json',
-      hardcodedProject.url,
+      '--target', 
+      'repo',
+      '--format', 
+      'json',
+      hardcodedProject.url
     ];
     console.log('Running Hipcheck scan with args', args);
 
@@ -44,9 +46,9 @@ export const handler = async (commandOptions: CommandOptions) => {
       parsedData = JSON.parse(output.stdout.toString());
     } catch (error) {
       console.error('Failed to parse JSON:', error);
-      parsedData = {}
+      parsedData = {};
     }
-    
+
     hardcodedProject.hipcheckResults = parsedData;
 
     const projectRepository = getRepository(OpenSourceProject); 
