@@ -2,7 +2,7 @@ import { OpenSourceProject } from '../models';
 import { spawnSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { CommandOptions } from './ecs-client';
-import getProjects from './helpers/getProjects';
+// import getProjects from './helpers/getProjects';
 import { getRepository } from 'typeorm';
 import * as path from 'path';
 
@@ -10,7 +10,7 @@ const OUT_PATH = path.join(__dirname, 'out-' + Math.random() + '.json');
 
 export const handler = async (commandOptions: CommandOptions) => {
   const { organizationId, organizationName, scanId } = commandOptions;
-  
+
   console.log('Running Hipcheck scan on hardcoded URL');
 
   // Hardcoded project URL for testing
@@ -30,22 +30,23 @@ export const handler = async (commandOptions: CommandOptions) => {
     ];
     console.log('Running Hipcheck scan with args', args);
 
-    const output = spawnSync('$HOME/.cargo/bin/hc', args, { stdio: 'pipe' });
+    const hcPath = path.resolve(process.env.HOME || '', '.cargo/bin/hc');
+
+    const output = spawnSync(hcPath, args, { stdio: 'pipe' });
 
     if (output.error) {
       throw output.error;
     }
 
-    console.log("JSON String:", output.stdout.toString());
-    const parsedData = ""
+    console.log('JSON String:', output.stdout.toString());
+    let parsedData;
     try {
       parsedData = JSON.parse(output.stdout.toString());
-      // Proceed with your logic using parsedData
     } catch (error) {
-      console.error("Failed to parse JSON:", error);
-      // Handle the error or set a fallback value
+      console.error('Failed to parse JSON:', error);
+      parsedData = {}
     }
-    //const result = JSON.parse(output.stdout.toString());
+    
     hardcodedProject.hipcheckResults = parsedData;
 
     const projectRepository = getRepository(OpenSourceProject); 
