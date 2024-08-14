@@ -119,7 +119,7 @@ export const RegionUsers: React.FC = () => {
   const [organizations, setOrganizations] = useState<OrganizationType[]>([]);
   const [pendingUsers, setPendingUsers] = useState<User[]>([]);
   const [currentUsers, setCurrentUsers] = useState<User[]>([]);
-  const [infoDialogContent, setInfoDialogContent] = useState<String>('');
+  const [infoDialogContent, setInfoDialogContent] = useState<string>('');
 
   const fetchOrganizations = useCallback(async () => {
     try {

@@ -37,7 +37,7 @@ export const RSCRegisterForm: React.FC<{
     email: ''
   });
 
-  const registerRSCUserPost = async (body: Object) => {
+  const registerRSCUserPost = async (body: object) => {
     try {
       const requestOptions: RequestInit = {
         method: 'POST',

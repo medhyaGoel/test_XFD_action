@@ -122,8 +122,7 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
 
   useEffect(() => {
     refreshUser();
-    // eslint-disable-next-line
-  }, []);
+  }, [refreshUser]);
 
   useEffect(() => {
     if (!token) {

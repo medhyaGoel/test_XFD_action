@@ -44,7 +44,7 @@ export const RegisterForm: React.FC<{
     state: ''
   });
 
-  const registerUserPost = async (body: Object) => {
+  const registerUserPost = async (body: object) => {
     try {
       const requestOptions: RequestInit = {
         method: 'POST',

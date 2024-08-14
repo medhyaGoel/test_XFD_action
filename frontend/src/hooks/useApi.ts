@@ -53,6 +53,7 @@ export const useApi = (onError?: OnError) => {
           showLoading && setRequestCount((cnt) => cnt - 1);
           return result as T;
         } catch (e: any) {
+          console.error('API call error:', e); // debugging
           showLoading && setRequestCount((cnt) => cnt - 1);
           onError && onError(e);
           throw e;

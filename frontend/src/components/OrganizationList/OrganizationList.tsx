@@ -61,7 +61,7 @@ export const OrganizationList: React.FC<{
     }
   ];
 
-  const onSubmit = async (body: Object) => {
+  const onSubmit = async (body: object) => {
     try {
       const org = await apiPost('/organizations/', {
         body

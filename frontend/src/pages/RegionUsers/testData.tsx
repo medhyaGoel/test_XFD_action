@@ -109,13 +109,13 @@ type organizations = {
   updatedAt: string;
   name: string;
   userType?: string;
-  rootDomains: Array<String>;
-  ipBlocks: Array<String>;
+  rootDomains: Array<string>;
+  ipBlocks: Array<string>;
   isPassive: boolean;
-  pendingDomains: Array<String>;
-  userRoles: Array<String>;
+  pendingDomains: Array<string>;
+  userRoles: Array<string>;
   members?: number;
-  tags: Array<Object>;
+  tags: Array<object>;
 };
 export const testOrganizations: organizations[] = [
   {

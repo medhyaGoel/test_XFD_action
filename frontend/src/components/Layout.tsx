@@ -14,7 +14,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const parseTextToJSX = (text: String) => {
+const parseTextToJSX = (text: string) => {
   const lines = text.split('\n');
   return lines.map((line, index) => {
     const parts = line.split(/(\[.*?\]\(.*?\))/g).map((part, i) => {

@@ -47,7 +47,6 @@ const Feeds = () => {
       } catch (e) {
         console.error(e);
       }
-      // eslint-disable-next-line
     },
     [apiGet, pageState.resultsPerPage]
   );

@@ -27,6 +27,8 @@ import {
   Risk,
   Organization,
   Organizations,
+  Projects,
+  Project,
   SearchPage,
   Settings,
   TermsOfUse,
@@ -143,6 +145,16 @@ const App: React.FC = () => (
                   <RouteGuard
                     path="/inventory/vulnerability/:vulnerabilityId"
                     component={Vulnerability}
+                    permissions={['globalView', 'regionalAdmin', 'standard']}
+                  />
+                  <RouteGuard
+                    path="/inventory/projects"
+                    component={Projects}
+                    permissions={['globalView', 'regionalAdmin', 'standard']}
+                  />
+                  <RouteGuard
+                    path="/inventory/project/:projectId"
+                    component={Project}
                     permissions={['globalView', 'regionalAdmin', 'standard']}
                   />
                   <RouteGuard

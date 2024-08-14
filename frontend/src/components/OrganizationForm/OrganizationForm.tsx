@@ -42,7 +42,7 @@ export const OrganizationForm: React.FC<{
   organization?: Organization;
   open: boolean;
   setOpen: (open: boolean) => void;
-  onSubmit: (values: Object) => Promise<void>;
+  onSubmit: (values: object) => Promise<void>;
   type: string;
   parent?: Organization;
 }> = ({ organization, onSubmit, type, open, setOpen, parent }) => {

@@ -10,7 +10,7 @@ import { useAuthContext } from 'context';
 
 interface AuthRedirectRouteProps extends RouteProps {
   unauth?: string | React.ComponentType;
-  permissions?: Array<String>;
+  permissions?: Array<string>;
   component: React.ComponentType;
 }
 
