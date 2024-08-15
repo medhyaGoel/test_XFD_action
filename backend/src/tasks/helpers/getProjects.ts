@@ -1,8 +1,8 @@
-// import { Organization, connectToDatabase} from '../../models';
+import { OpenSourceProject, connectToDatabase } from '../../models';
 
-// export default async (organizationId: string) => {
-//   await connectToDatabase();
+export default async (): Promise<OpenSourceProject[]> => {
+  await connectToDatabase();
 
-//   const organization = await Organization.findOne(organizationId);
-//   return organization!.openSourceProjects;
-// };
+  const projects = await OpenSourceProject.find();
+  return projects;
+};
