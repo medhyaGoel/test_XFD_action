@@ -59,6 +59,7 @@ const Projects: React.FC = () => {
       // API call
       if (data.url) {
         await createProject(data.url, orgs);
+        await loadProjects();
         handleCloseModal();
         return;
       } else {
@@ -91,10 +92,6 @@ const Projects: React.FC = () => {
     setErrorMessage(null);
     try {
       const allProjects: Project[] = [];
-      if (!organizations || organizations.length === 0) {
-        setErrorMessage('No organizations available');
-        return;
-      }
       for (const org of organizations) {
         const orgProjects = await fetchProjectsByOrg(org.id);
         if (orgProjects) {

@@ -13,6 +13,7 @@ import {
   DialogContent,
   DialogActions
 } from '@mui/material';
+import { useAuthContext } from 'context';
 
 export interface ProjectFormData {
   url: string;
@@ -30,9 +31,10 @@ const ProjectCreate: React.FC<ProjectCreateProps> = ({
   onClose,
   onSubmit
 }) => {
+  const { currentOrganization } = useAuthContext();
   const [formData, setFormData] = useState<ProjectFormData>({
     url: '',
-    orgNames: ['']
+    orgNames: currentOrganization ? [currentOrganization.name] : ['']
   });
   const [errorMessage] = useState<string | null>(null);
 
