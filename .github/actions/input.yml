@@ -1,5 +1,5 @@
 name: "SBOM to Crossfeed POC"
-description: "Generates an SBOM using npm and adds repo purls as projects in Crossfeed using Crossfeed API"
+description: "Generates an SBOM and adds repo purls as Crossfeed projects"
 author: "Medhya Goel"
 inputs:
   api-url:
