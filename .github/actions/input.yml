@@ -1,0 +1,73 @@
+name: "SBOM to Crossfeed POC"
+description: "Generates an SBOM using npm and adds repo purls as projects in Crossfeed using Crossfeed API"
+author: "Medhya Goel"
+inputs:
+  api-url:
+    description: "Localtunnel URL"
+    required: true
+  api-token:
+    description: "Crossfeed API Token"
+    required: true
+  organization-id0:
+    description: "Crossfeed Organization ID"
+    required: false
+  node-version:
+    description: "Node.js version to use"
+    default: "16"
+  
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Generate SBOM
+      run: npm sbom --json > sbom.json
+
+    - name: Extract PURLs
+      run: |
+        purls=$(jq -r '.dependencies[].purl' sbom.json)
+        echo "Extracted PURLs:"
+        echo "$purls" > purls.txt
+        cat purls.txt
+
+    - name: Send PURLs to Crossfeed API
+      run: |
+        if [ -z "${{ inputs.organization-id }}" ]; then
+          echo "No organization ID provided so creating organization."
+          response=$(curl -X POST \
+            -H "Authorization: Bearer ${{ inputs.api-token }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "name": "DummyOrg",
+                  "rootDomains": ["cisa.gov"],
+                  "tags": [{"name": "test"}]
+                }' \
+            "${{ inputs.api-url }}/organization")
+          org=$(echo $response | jq -r '.name')
+        else
+          org="${{ inputs.organization-id }}"
+        fi
+        while IFS= read -r purl; do
+          echo "Sending PURL to Crossfeed API:"
+          curl -X POST \
+            -H "Authorization: Bearer ${{ inputs.api-token }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "url": "https://example.com/your-open-source-project",
+                  "hipcheckResults": { 
+                    "dummy": "dummy value"                                   
+                  },
+                  "purl": "$purl",
+                  "orgId": "$org"
+                }' \
+            "${{ inputs.api-url }}/project"
+        done
