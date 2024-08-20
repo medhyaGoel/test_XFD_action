@@ -51,12 +51,12 @@ runs:
                   "rootDomains": ["cisa.gov"],
                   "tags": [{"name": "test"}]
                 }' \
-            "${{ inputs.api-url }}/organization")
+            "${{ inputs.api-url }}/organizations")
           org=$(echo $response | jq -r '.name')
         else
           org="${{ inputs.organization-id }}"
         fi
-        echo $org
+        echo "${{ inputs.organization-id }}"
         while IFS= read -r purl; do
           echo "Sending PURL to Crossfeed API:"
           curl -X POST \
